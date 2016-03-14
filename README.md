@@ -8,7 +8,7 @@ _We did it!_ It took a lot of head-banging and several indirect passings-of-the-
 	
 * [Installing from pip (easy)](#installing-from-pip)
 * [Building from source (hard)](#building-from-source)
-* [Credits](#people-who-did-most-of-the-actual-work)
+* [Credits](#credits)
 * [License](#license)
 
 ## Installing from Pip
