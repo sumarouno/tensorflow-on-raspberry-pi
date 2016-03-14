@@ -283,7 +283,7 @@ bazel build -c opt --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/
 
 And then test it out by running a local GRPC server:
 
-```shell
+```
 $ bazel-bin/tensorflow/core/distributed_runtime/rpc/grpc_tensorflow_server --cluster_spec='local|localhost:2222' --job_name=local --task_id=0
 
 I tensorflow/core/distributed_runtime/rpc/grpc_tensorflow_server.cc:74] Peer local 1 {localhost:2222}
