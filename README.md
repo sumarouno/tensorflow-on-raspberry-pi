@@ -9,6 +9,7 @@ _We did it!_ It took a lot of head-banging and several indirect passings-of-the-
 * [Installing from pip (easy)](#installing-from-pip)
 * [Building from source (hard)](#building-from-source)
 * [Credits](#people-who-did-most-of-the-actual-work)
+* [License](#license)
 
 ## Installing from Pip
 
@@ -58,6 +59,12 @@ _Issue threads of interest:_
 * [First thread about running TensorFlow on RPi](https://github.com/tensorflow/tensorflow/issues/254)
 * [Parallel thread on building TensorFlow on ARMv7l](https://github.com/tensorflow/tensorflow/issues/445)
 	* This is where the most recent conversation is located
+
+## License
+
+The file TENSORFLOW_LICENSE applies to any and all files in the `bin` directory, which are compiled Python wheels for TensorFlow.
+
+The file LICENSE applies to other files in this repository. I want to stress that a majority of the lines of code found in the guide of this repository was created by others. If any of those original authors want more prominent attribution, please contact me and we can figure out how to make it acceptable.
 
 ---
 
