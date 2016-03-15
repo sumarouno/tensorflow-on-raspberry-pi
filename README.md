@@ -26,7 +26,7 @@ sudo apt-get install python-pip python-dev
 Next, download the wheel file from this repository and install it:
 
 ```shell
-wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/blob/master/bin/tensorflow-0.7.1-cp27-none-linux_armv7l.whl
+wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/raw/master/bin/tensorflow-0.7.1-cp27-none-linux_armv7l.whl
 
 sudo pip install tensorflow-0.7.1-cp27-none-linux_armv7l.whl
 ```
