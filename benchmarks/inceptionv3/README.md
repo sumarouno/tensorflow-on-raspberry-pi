@@ -8,6 +8,10 @@ Out of the box, Inception-v3 is available to run from either a Python script [(t
 
 ## Summary
 
+* _Build_ refers to the amount of time it took to load and build the Inception-v3 graph from storage
+* _Eval_ refers to the amount of time it took to classify the image once it was loaded into memory
+* _Total_ is the sum of _Build_ and _Eval_
+
 <table>
 
 	<tr>
@@ -65,6 +69,7 @@ Out of the box, Inception-v3 is available to run from either a Python script [(t
 	* Dan Brickley (@danbri) shared some results when [testing out a camera module on his Raspberry Pi 3](https://twitter.com/danbri/status/709903532216995842). Direct link to Gist [here](https://gist.githubusercontent.com/danbri/ee6323d78ca14e616e4e/raw/6f50a897a59cb25d6c5e8f43fdfb0392fe9945d8/gistfile1.txt)
 	* Pete Warden (@petewarden) mentioned that the compiler [may not be using NEON](https://github.com/tensorflow/tensorflow/issues/445#issuecomment-196021885) on the Raspberry Pi 2 while attempting to build TensorFlow. While my tests did not take a minute to run, @danbri's results suggest similar performance to @petewarden's; this may be a first place to look for improvements
 * On Mac, the Python version appears to run _much_ faster than the C++ binary. I'm not quite sure how this happened. I'd like to test on other systems to see if the results hold.
+* During the first run of the C++ binary after booting the system, there was a noticable slowdown during the 'model building'
 
 ## Outputs
 
