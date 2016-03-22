@@ -33,6 +33,18 @@ sudo pip install tensorflow-0.7.1-cp27-none-linux_armv7l.whl
 
 And that should be it!
 
+### Troubleshooting
+
+_This section will attempt to maintain a list of remedies for problems that may occur while installing from `pip`_
+
+#### "tensorflow-0.7.1-cp27-none-linux_armv7l.whl is not a supported wheel on this platform."
+
+This wheel was built with Python 2.7, and can't be installed with a version of `pip` that uses Python 3. If you get the above message, try running the following command instead:
+
+```
+sudo pip2 install tensorflow-0.7.1-cp27-none-linux_armv7l.whl
+```
+
 ## Building from Source
 
 [_Step-by-step guide_](GUIDE.md)
