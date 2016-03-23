@@ -76,6 +76,8 @@ _Issue threads of interest:_
 
 The file TENSORFLOW_LICENSE applies to any and all files in the `bin` directory, which are compiled Python wheels for TensorFlow.
 
+Subdirectories contained within the `third_party` directory each contain relevant licenses for the code and software within those subdirectories.
+
 The file LICENSE applies to other files in this repository. I want to stress that a majority of the lines of code found in the guide of this repository was created by others. If any of those original authors want more prominent attribution, please contact me and we can figure out how to make it acceptable.
 
 ---
