@@ -256,7 +256,7 @@ Do you wish to build TensorFlow with GPU support? [y/N] N
 Now we can use it to build TensorFlow! **Warning: This takes a really, really long time. Several hours.**
 
 ```shell
-bazel build -c opt --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/tools/pip_package:build_pip_package
+bazel build -c opt --local_resources 1024,1.0,1.0 --verbose_failures --copt="-mfpu=neon" tensorflow/tools/pip_package:build_pip_package
 ```
 
 _Note: I toyed around with telling Bazel to use all four cores in the Raspberry Pi, but that seemed to make compiling more prone to completely locking up. This process takes a long time regardless, so I'm sticking with the more reliable options here. If you want to be bold, try using `--local_resources 1024,2.0,1.0` or `--local_resources 1024,4.0,1.0`_
@@ -278,7 +278,7 @@ sudo pip install /tmp/tensorflow_pkg/tensorflow-0.7.1-cp27-none-linux_armv7l.whl
 If all has gone according to plan, you should be the proud owner of a TensorFlow-capable Raspberry Pi! But before removing your swap drive, you may want to consider building one of the optional TensorFlow components, such as the [initial distributed runtime](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/core/distributed_runtime). Building it is a breeze (relatively):
 
 ```shell
-bazel build -c opt --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
+bazel build -c opt --local_resources 1024,1.0,1.0 --verbose_failures --copt="-mfpu=neon" tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
 ```
 
 And then test it out by running a local GRPC server:
