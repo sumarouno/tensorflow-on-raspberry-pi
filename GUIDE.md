@@ -4,7 +4,10 @@ _[Back to readme](README.md)_
 
 ## What You Need
 
-* Raspberry Pi 3 Model B (probably works for RPi 2, but not verified yet)
+* Raspberry Pi 2 or 3 Model B
+* An SD card running Raspbian with several GB of free space
+	* An 8 GB card with a fresh install of Raspbian **does not** have enough space. A 16 GB SD card minimum is recommended.
+	* These instructions may work on Linux distributions other than Raspbian
 * Internet connection to the Raspberry Pi
 * A USB memory drive that can be installed as swap memory (if it is a flash drive, make sure you don't care about the drive). Anything over 1 GB should be fine
 * A fair amount of time
