@@ -78,6 +78,7 @@ Now move into the new `protobuf` directory, configure it, and `make` it. _Note: 
 
 ```shell
 cd protobuf
+git checkout d5fb408d
 ./autogen.sh 
 ./configure --prefix=/usr
 make -j 4
@@ -102,11 +103,11 @@ cd ../..
 git clone https://github.com/bazelbuild/bazel.git
 ```
 
-Next, go into the new `bazel` direcotry and immediately checkout version 0.1.4 of Bazel. _Note: we do this because a hack-y workaround we do later on doesn't work for the most recent version of Bazel. If you have instructions for building Bazel 2.0 or later on Raspberry Pi, please send a pull request!_
+Next, go into the new `bazel` direcotry and immediately checkout version 0.2.1 of Bazel.
 
 ```shell
 cd bazel
-git checkout tags/0.1.4
+git checkout 0.2.1
 ```
 
 After that, copy the two Protobuf files mentioned earlier into the Bazel project. Note the naming of the files in this step- it must be precise.
@@ -114,6 +115,28 @@ After that, copy the two Protobuf files mentioned earlier into the Bazel project
 ```shell
 sudo cp /usr/bin/protoc third_party/protobuf/protoc-linux-arm32.exe
 sudo cp ../protobuf/java/core/target/protobuf-java-3.0.0-beta-2.jar third_party/protobuf/protobuf-java-3.0.0-beta-1.jar
+```
+
+Before building Bazel, we need to set the `javac` maximum heap size for this job, or else we'll get an OutOfMemoryError. To do this, we need to make a small addition to `bazel/scripts/bootstrap/compile.sh`. (Shout-out to @SangManLINUX for [pointing this out.](https://github.com/samjabrahams/tensorflow-on-raspberry-pi/issues/5#issuecomment-210965695).
+
+```shell
+nano scripts/bootstrap/compile.sh
+```
+
+Move down to line 128, where you'll see the following block of code:
+
+```shell
+run "${JAVAC}" -classpath "${classpath}" -sourcepath "${sourcepath}" \
+      -d "${output}/classes" -source "$JAVA_VERSION" -target "$JAVA_VERSION" \
+      -encoding UTF-8 "@${paramfile}"
+```
+
+At the end of this block, add in the `-J-Xmx500M` flag, which sets the maximum size of the Java heap to 500 MB:
+
+```
+run "${JAVAC}" -classpath "${classpath}" -sourcepath "${sourcepath}" \
+      -d "${output}/classes" -source "$JAVA_VERSION" -target "$JAVA_VERSION" \
+      -encoding UTF-8 "@${paramfile}" -J-Xmx500M
 ```
 
 Now we can build Bazel! _Note: this also takes some time._
@@ -129,7 +152,7 @@ sudo mkdir /usr/local/bin
 sudo cp output/bazel /usr/local/bin/bazel
 ```
 
-To make sure it's working properly, run `bazel` on the command line and verify it prints help text.
+To make sure it's working properly, run `bazel` on the command line and verify it prints help text. Note: this may take 15-30 seconds to run, so be patient!
 
 ```shell
 $ bazel
@@ -239,6 +262,8 @@ git clone --recurse-submodules https://github.com/tensorflow/tensorflow
 cd tensorflow
 ```
 
+_Note: if you're looking to build to a specific version or commit of TensorFlow (as opposed to the HEAD at master), you should `git checkout` it now`
+
 Once in the directory, we have to write a nifty one-liner that is incredibly important. The next line goes through all files and changes references of 64-bit program implementations (which we don't have access to) to 32-bit implementations. Neat!
 
 ```shell
@@ -273,25 +298,7 @@ bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 And then install it!
 
 ```shell
-sudo pip install /tmp/tensorflow_pkg/tensorflow-0.7.1-cp27-none-linux_armv7l.whl
-```
-
-### 5.5 Building the Distributed Runtime
-
-If all has gone according to plan, you should be the proud owner of a TensorFlow-capable Raspberry Pi! But before removing your swap drive, you may want to consider building one of the optional TensorFlow components, such as the [initial distributed runtime](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/core/distributed_runtime). Building it is a breeze (relatively):
-
-```shell
-bazel build -c opt --local_resources 1024,1.0,1.0 --verbose_failures --copt="-mfpu=neon" tensorflow/core/distributed_runtime/rpc:grpc_tensorflow_server
-```
-
-And then test it out by running a local GRPC server:
-
-```
-$ bazel-bin/tensorflow/core/distributed_runtime/rpc/grpc_tensorflow_server --cluster_spec='local|localhost:2222' --job_name=local --task_id=0
-
-I tensorflow/core/distributed_runtime/rpc/grpc_tensorflow_server.cc:74] Peer local 1 {localhost:2222}
-I tensorflow/core/distributed_runtime/rpc/grpc_channel.cc:199] Initialize HostPortsGrpcChannelCache for job local -> {localhost:2222}
-I tensorflow/core/distributed_runtime/rpc/grpc_server_lib.cc:203] Started server with target: grpc://localhost:2222
+sudo pip install /tmp/tensorflow_pkg/tensorflow-0.8.0rc0-cp27-none-linux_armv7l.whl
 ```
 
 ### 6. Cleaning Up
