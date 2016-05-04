@@ -114,7 +114,7 @@ After that, copy the two Protobuf files mentioned earlier into the Bazel project
 
 ```shell
 sudo cp /usr/bin/protoc third_party/protobuf/protoc-linux-arm32.exe
-sudo cp ../protobuf/java/core/target/protobuf-java-3.0.0-beta-2.jar third_party/protobuf/protobuf-java-3.0.0-beta-1.jar
+sudo cp ../protobuf/java/target/protobuf-java-3.0.0-beta-2.jar third_party/protobuf/protobuf-java-3.0.0-beta-1.jar
 ```
 
 Before building Bazel, we need to set the `javac` maximum heap size for this job, or else we'll get an OutOfMemoryError. To do this, we need to make a small addition to `bazel/scripts/bootstrap/compile.sh`. (Shout-out to @SangManLINUX for [pointing this out.](https://github.com/samjabrahams/tensorflow-on-raspberry-pi/issues/5#issuecomment-210965695).
@@ -298,7 +298,7 @@ bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 And then install it!
 
 ```shell
-sudo pip install /tmp/tensorflow_pkg/tensorflow-0.8.0rc0-cp27-none-linux_armv7l.whl
+sudo pip install /tmp/tensorflow_pkg/tensorflow-0.8.0-cp27-none-linux_armv7l.whl
 ```
 
 ### 6. Cleaning Up
