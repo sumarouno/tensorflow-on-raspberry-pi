@@ -5,7 +5,7 @@
 _We did it!_ It took a lot of head-banging and several indirect passings-of-the-torch, but we finally got TensorFlow compiled and running properly on the Raspberry Pi! Hopefully this will enable more hardware-based machine learning projects, as well as making the distributed aspects of TensorFlow more accessible.
 
 ### Contents
-	
+
 * [Installing from pip (easy)](#installing-from-pip)
 * [Building from source (hard)](#building-from-source)
 * [Credits](#credits)
@@ -20,15 +20,23 @@ This is the easiest way to get TensorFlow onto your Raspberry Pi 3. Note that cu
 First, install the dependencies for TensorFlow:
 
 ```shell
-sudo apt-get install python-pip python-dev
+# For Python 2.7
+$ sudo apt-get install python-pip python-dev
+
+# For Python 3.3+
+$ sudo apt-get install python3-pip python3-dev
 ```
 
 Next, download the wheel file from this repository and install it:
 
 ```shell
-wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/raw/master/bin/tensorflow-0.8.0-cp27-none-linux_armv7l.whl
+# For Python 2.7
+$ wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/raw/master/bin/tensorflow-0.8.0-cp27-none-linux_armv7l.whl
+$ sudo pip install tensorflow-0.8.0-cp27-none-linux_armv7l.whl
 
-sudo pip install tensorflow-0.8.0-cp27-none-linux_armv7l.whl
+# For Python 3.3+
+$ wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/raw/master/bin/tensorflow-0.8.0-cp34-cp34m-linux_armv7l.whl
+$ sudo pip install tensorflow-0.8.0-cp34-cp34m-linux_armv7l
 ```
 
 And that should be it!
@@ -42,7 +50,13 @@ _This section will attempt to maintain a list of remedies for problems that may 
 This wheel was built with Python 2.7, and can't be installed with a version of `pip` that uses Python 3. If you get the above message, try running the following command instead:
 
 ```
-sudo pip2 install tensorflow-0.8.0-cp27-none-linux_armv7l.whl
+$ sudo pip2 install tensorflow-0.8.0-cp27-none-linux_armv7l.whl
+```
+
+Vice-versa for trying to install the Python 3 wheel. If you get the error "tensorflow-0.8.0-cp34-cp34m-linux_armv7l is not a supported wheel on this platform.", try this command:
+
+```
+$ sudo pip3 install tensorflow-0.8.0-cp34-cp34m-linux_armv7l
 ```
 
 ## Building from Source

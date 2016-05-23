@@ -56,7 +56,13 @@ sudo apt-get install pkg-config zip g++ zlib1g-dev unzip
 For TensorFlow:
 
 ```
+# For Python 2.7
 sudo apt-get install python-pip python-numpy swig python-dev
+sudo pip install wheel
+
+# For Python 3.3+
+sudo apt-get install python3-pip python3-numpy swig python3-dev
+sudo pip3 install wheel
 ```
 
 Finally, for cleanliness, make a directory that will hold the Protobuf, Bazel, and TensorFlow repositories.
@@ -79,7 +85,7 @@ Now move into the new `protobuf` directory, configure it, and `make` it. _Note: 
 ```shell
 cd protobuf
 git checkout d5fb408d
-./autogen.sh 
+./autogen.sh
 ./configure --prefix=/usr
 make -j 4
 sudo make install
@@ -196,7 +202,7 @@ cd ..
 
 In order to succesfully build TensorFlow, your Raspberry Pi needs a little bit more memory to fall back on. Fortunately, this process is pretty straightforward. Grab a USB storage drive that has at least 1GB of memory. I used a flash drive I could live without that carried no important data. That said, we're only going to be using the drive as swap while we compile, so this process shouldn't do too much damage to a relatively new USB drive.
 
-First, put insert your USB drive, and find the `/dev/XXX` path for the device. 
+First, put insert your USB drive, and find the `/dev/XXX` path for the device.
 
 ```shell
 sudo blkid
@@ -262,7 +268,7 @@ git clone --recurse-submodules https://github.com/tensorflow/tensorflow
 cd tensorflow
 ```
 
-_Note: if you're looking to build to a specific version or commit of TensorFlow (as opposed to the HEAD at master), you should `git checkout` it now`
+_Note: if you're looking to build to a specific version or commit of TensorFlow (as opposed to the HEAD at master), you should `git checkout` it now._
 
 Once in the directory, we have to write a nifty one-liner that is incredibly important. The next line goes through all files and changes references of 64-bit program implementations (which we don't have access to) to 32-bit implementations. Neat!
 
@@ -280,6 +286,8 @@ $ ./configure
 Please specify the location of python. [Default is /usr/bin/python]: /usr/bin/python
 Do you wish to build TensorFlow with GPU support? [y/N] N
 ```
+
+_Note: if you want to build for Python 3, specify `/usr/bin/python3` for Python's location._
 
 Now we can use it to build TensorFlow! **Warning: This takes a really, really long time. Several hours.**
 
@@ -311,7 +319,7 @@ First, turn off your drive as swap:
 sudo swapoff /dev/XXX
 ```
 
-Finally, remove the line you wrote in `/etc/fstab` referencing the device 
+Finally, remove the line you wrote in `/etc/fstab` referencing the device
 
 ```
 sudo nano /etc/fstab
