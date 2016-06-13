@@ -273,10 +273,10 @@ _Note: if you're looking to build to a specific version or commit of TensorFlow 
 Once in the directory, we have to write a nifty one-liner that is incredibly important. The next line goes through all files and changes references of 64-bit program implementations (which we don't have access to) to 32-bit implementations. Neat!
 
 ```shell
-grep -Rl "lib64"| xargs sed -i 's/lib64/lib/g'
+grep -Rl 'lib64'| xargs sed -i 's/lib64/lib/g'
 ```
 
-And surprisingly, that's all we need to do! There were a couple bugs that needed workaround, but as of now they are gone. If things get wonky, I'll update this file to reflect any changes you need to make.
+And that's all we need to do! In older versions of TensorFlow there were a couple bugs that needed workarounds, but as of now they are gone. If things get wonky, I'll update this file to reflect any changes you need to make.
 
 Let's first configure Bazel:
 
@@ -284,6 +284,7 @@ Let's first configure Bazel:
 $ ./configure
 
 Please specify the location of python. [Default is /usr/bin/python]: /usr/bin/python
+Do you wish to build TensorFlow with Google Cloud Platform support? [y/N] N
 Do you wish to build TensorFlow with GPU support? [y/N] N
 ```
 
