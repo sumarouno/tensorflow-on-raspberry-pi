@@ -270,6 +270,20 @@ cd tensorflow
 
 _Note: if you're looking to build to a specific version or commit of TensorFlow (as opposed to the HEAD at master), you should `git checkout` it now._
 
+---
+
+#### NOTE: TensorFlow 0.9 compilation failing
+
+As of June 10, 2016, there are issues with the build process for more recent commits in the TensorFlow repository. Most notably, the [0.9 release candidate 0](https://github.com/tensorflow/tensorflow/releases/tag/v0.9.0rc0) will not build. This is due to changes related to 16-bit floating point support. The most recent confirmed build was branch `r0.8`. If you'd like to build TensorFlow 0.8, run this command once inside of the TensorFlow directory:
+
+```
+git checkout r0.8
+```
+
+This notice will be removed once the problem is removed or a fix is found.
+
+---
+
 Once in the directory, we have to write a nifty one-liner that is incredibly important. The next line goes through all files and changes references of 64-bit program implementations (which we don't have access to) to 32-bit implementations. Neat!
 
 ```shell
