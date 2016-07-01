@@ -31,12 +31,12 @@ Next, download the wheel file from this repository and install it:
 
 ```shell
 # For Python 2.7
-$ wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/raw/master/bin/tensorflow-0.9.0rc0-cp27-none-linux_armv7l.whl
-$ sudo pip install tensorflow-0.9.0rc0-cp27-none-linux_armv7l.whl
+$ wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/raw/master/bin/tensorflow-0.9-cp27-none-linux_armv7l.whl
+$ sudo pip install tensorflow-0.9-cp27-none-linux_armv7l.whl
 
 # For Python 3.3+
-$ wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/raw/master/bin/tensorflow-0.9.0rc0-py3-none-any.whl
-$ sudo pip install tensorflow-0.9.0rc0-py3-none-any.whl
+$ wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/raw/master/bin/tensorflow-0.9-py3-none-any.whl
+$ sudo pip install tensorflow-0.9-py3-none-any.whl
 ```
 
 And that should be it!
@@ -45,18 +45,18 @@ And that should be it!
 
 _This section will attempt to maintain a list of remedies for problems that may occur while installing from `pip`_
 
-#### "tensorflow-0.9.0rc0-cp27-none-linux_armv7l.whl is not a supported wheel on this platform."
+#### "tensorflow-0.9-cp27-none-linux_armv7l.whl is not a supported wheel on this platform."
 
 This wheel was built with Python 2.7, and can't be installed with a version of `pip` that uses Python 3. If you get the above message, try running the following command instead:
 
 ```
-$ sudo pip2 install tensorflow-0.9.0rc0-cp27-none-linux_armv7l.whl
+$ sudo pip2 install tensorflow-0.9-cp27-none-linux_armv7l.whl
 ```
 
-Vice-versa for trying to install the Python 3 wheel. If you get the error "tensorflow-0.9.0rc0-py3-none-any.whl is not a supported wheel on this platform.", try this command:
+Vice-versa for trying to install the Python 3 wheel. If you get the error "tensorflow-0.9-py3-none-any.whl is not a supported wheel on this platform.", try this command:
 
 ```
-$ sudo pip3 install tensorflow-0.9.0rc0-py3-none-any.whl
+$ sudo pip3 install tensorflow-0.9-py3-none-any.whl
 ```
 
 ## Building from Source
