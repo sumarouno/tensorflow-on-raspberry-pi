@@ -276,9 +276,24 @@ Once in the directory, we have to write a nifty one-liner that is incredibly imp
 grep -Rl 'lib64'| xargs sed -i 's/lib64/lib/g'
 ```
 
-And that's all we need to do! In older versions of TensorFlow there were a couple bugs that needed workarounds, but as of now they are gone. If things get wonky, I'll update this file to reflect any changes you need to make.
+Next, we need to delete a particular line in `tensorflow/core/platform/platform.h`. Open up the file in your favorite text editor:
 
-Let's first configure Bazel:
+```shell
+$ sudo nano tensorflow/core/platform/platform.h
+```
+
+Now, scroll down toward the bottom and delete the following line containing `#define IS_MOBILE_PLATFORM`:
+
+```cpp
+#elif defined(__arm__)
+#define PLATFORM_POSIX
+...
+#define IS_MOBILE_PLATFORM   <----- DELETE THIS LINE
+```
+
+This keeps our Raspberry Pi device (which has an ARM CPU) from being recognized as a mobile device.
+
+Now let's configure Bazel:
 
 ```shell
 $ ./configure
@@ -293,7 +308,7 @@ _Note: if you want to build for Python 3, specify `/usr/bin/python3` for Python'
 Now we can use it to build TensorFlow! **Warning: This takes a really, really long time. Several hours.**
 
 ```shell
-bazel build -c opt --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/tools/pip_package:build_pip_package
+bazel build -c opt --copt="-mfpu=neon" --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/tools/pip_package:build_pip_package
 ```
 
 _Note: I toyed around with telling Bazel to use all four cores in the Raspberry Pi, but that seemed to make compiling more prone to completely locking up. This process takes a long time regardless, so I'm sticking with the more reliable options here. If you want to be bold, try using `--local_resources 1024,2.0,1.0` or `--local_resources 1024,4.0,1.0`_
