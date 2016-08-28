@@ -8,6 +8,7 @@ _We did it!_ It took a lot of head-banging and several indirect passings-of-the-
 
 * [Installing from pip (easy)](#installing-from-pip)
 * [Building from source (hard)](#building-from-source)
+* [Docker image](#docker-image)
 * [Credits](#credits)
 * [License](#license)
 
@@ -40,6 +41,10 @@ $ sudo pip install tensorflow-0.9.0-py3-none-any.whl
 ```
 
 And that should be it!
+
+### Docker image
+
+Instructions on setting up a Docker image to run on Raspberry Pi are being maintained by @romilly [here](https://github.com/romilly/rpi-docker-tensorflow), and a pre-built image is hosted on DockerHub [here](https://hub.docker.com/r/romilly/rpi-docker-tensorflow/). Woot!
 
 ### Troubleshooting
 
