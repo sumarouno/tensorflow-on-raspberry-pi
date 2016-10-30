@@ -22,11 +22,11 @@ Here's the basic plan: build a 32-bit version of [Protobuf](https://github.com/g
 
 1. [Install basic dependencies](#1-install-basic-dependencies)
 2. [Build Protobuf](#2-build-protobuf)
-3. [Build Bazel](#3-build-bazel)
-4. [Install USB Memory as Swap](#4-install-a-memory-drive-as-swap-for-compiling)
-5. [Compiling TensorFlow](#5-compiling-tensorflow)
-	* [Building the Distributed Runtime](#55-building-the-distributed-runtime)
-6. [Cleaning Up](#6-cleaning-up)
+3. [Build gRPC](#3-build-grpc)
+3. [Build Bazel](#4-build-bazel)
+4. [Install USB Memory as Swap](#5-install-a-memory-drive-as-swap-for-compiling)
+5. [Compiling TensorFlow](#6-compiling-tensorflow)
+6. [Cleaning Up](#7-cleaning-up)
 7. [References](#references)
 
 ## The Build
@@ -100,7 +100,51 @@ mvn package
 
 After following these steps, you'll have two spiffy new files: `/usr/bin/protoc` and `protobuf/java/core/target/protobuf-java-3.0.0-beta2.jar`
 
-### 3. Build Bazel
+### 3. Build gRPC
+
+Next, we need to build [gRPC-Java](https://github.com/grpc/grpc-java), the Java implementation of [gRPC](http://www.grpc.io/). Move out of the `protobuf/java` directory and clone gRPC's repository.
+
+```shell
+cd ../..
+git clone https://github.com/grpc/grpc-java.git
+```
+
+```shell
+cd grpc-java
+git checkout v1.0.0
+```
+
+```shell
+cd compiler
+```
+
+Around line 60:
+```
+...
+	x86_64 {
+		architecture "x86_64"
+	}
+	'linux_arm-v7' {
+		architecture "x86"
+	}
+```
+
+around line 77
+```
+...
+binaries {
+	all {
+		if (true) {
+			cppCompiler.define("GRPC_VERSION", version)
+...
+```
+
+
+```shell
+../gradlew java_pluginExecutable
+```
+
+### 4. Build Bazel
 
 First, move out of the `protobuf/java` directory and clone Bazel's repository.
 
@@ -109,7 +153,7 @@ cd ../..
 git clone https://github.com/bazelbuild/bazel.git
 ```
 
-Next, go into the new `bazel` direcotry and immediately checkout version 0.2.1 of Bazel.
+Next, go into the new `bazel` directory and immediately checkout version 0.2.1 of Bazel.
 
 ```shell
 cd bazel
@@ -198,7 +242,7 @@ Move out of the `bazel` directory, and we'll move onto the next step.
 cd ..
 ```
 
-### 4. Install a Memory Drive as Swap for Compiling
+### 5. Install a Memory Drive as Swap for Compiling
 
 In order to succesfully build TensorFlow, your Raspberry Pi needs a little bit more memory to fall back on. Fortunately, this process is pretty straightforward. Grab a USB storage drive that has at least 1GB of memory. I used a flash drive I could live without that carried no important data. That said, we're only going to be using the drive as swap while we compile, so this process shouldn't do too much damage to a relatively new USB drive.
 
@@ -259,7 +303,7 @@ sudo nano /etc/fstab
 
 Alright! You've got swap! Don't throw out the `/dev/XXX` information yet- you'll need it to remove the device safely later on.
 
-### 5. Compiling TensorFlow
+### 6. Compiling TensorFlow
 
 First things first, clone the TensorFlow repository and move into the newly created directory.
 
@@ -325,7 +369,7 @@ And then install it!
 sudo pip install /tmp/tensorflow_pkg/tensorflow-0.9-cp27-none-linux_armv7l.whl
 ```
 
-### 6. Cleaning Up
+### 7. Cleaning Up
 
 There's one last bit of house-cleaning we need to do before we're done: remove the USB drive that we've been using as swap.
 
