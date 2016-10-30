@@ -72,6 +72,14 @@ If you aren't able to make the wheel file from the previous section work, you ma
 
 See the [step-by-step guide here](GUIDE.md). **Warning: it takes a while.**
 
+## Non-Raspberry Pi Model 3 builds
+
+There are numerous single-board computers available on the market, but binaries and build instructions aren't necessarily compatible with what's available in this repository. This is a list of resources to help those with non-RPi3 (or RPi 2) computers get up and running:
+
+* ODROID
+    * [Issue thread for ODROID](https://github.com/samjabrahams/tensorflow-on-raspberry-pi/issues/41)
+		* [NeoTitans guide to building on ODROID C2](https://www.neotitans.net/install-tensorflow-on-odroid-c2.html)
+
 ## Credits
 
 _Or: people who did most of the actual work._
