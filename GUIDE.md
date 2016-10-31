@@ -47,6 +47,14 @@ For Protobuf:
 sudo apt-get install autoconf automake libtool maven
 ```
 
+For gRPC:
+
+```
+sudo apt-get install oracle-java7-jdk
+# Select the jdk-7-oracle option for the update-alternatives command
+sudo update-alternatives --config java
+```
+
 For Bazel:
 
 ```shell
@@ -84,7 +92,7 @@ Now move into the new `protobuf` directory, configure it, and `make` it. _Note: 
 
 ```shell
 cd protobuf
-git checkout d5fb408d
+git checkout v3.0.0-beta-3.3
 ./autogen.sh
 ./configure --prefix=/usr
 make -j 4
@@ -98,7 +106,7 @@ cd java
 mvn package
 ```
 
-After following these steps, you'll have two spiffy new files: `/usr/bin/protoc` and `protobuf/java/core/target/protobuf-java-3.0.0-beta2.jar`
+After following these steps, you'll have two spiffy new files: `/usr/bin/protoc` and `protobuf/java/core/target/protobuf-java-3.0.0-beta3.jar`
 
 ### 3. Build gRPC
 
@@ -111,34 +119,56 @@ git clone https://github.com/grpc/grpc-java.git
 
 ```shell
 cd grpc-java
-git checkout v1.0.0
+git checkout v0.14.1
 ```
 
 ```shell
 cd compiler
+nano build.gradle
 ```
 
-Around line 60:
+Around line 47:
+
+```
+gcc(Gcc) {
+	target("linux_arm-v7") {
+		cppCompiler.executable = "/usr/bin/gcc"
+	}
+}
+```
+
+Around line 60, add section for `'linux_arm-v7'`:
+
 ```
 ...
 	x86_64 {
 		architecture "x86_64"
 	}
 	'linux_arm-v7' {
-		architecture "x86"
+		architecture "arm32"
+		operatingSystem "linux"
 	}
 ```
 
-around line 77
+Around line 64, add `'arm32'` to list of architectures:
+
 ```
 ...
-binaries {
-	all {
-		if (true) {
-			cppCompiler.define("GRPC_VERSION", version)
+components {
+	java_plugin(NativeExecutableSpec) {
+			if (arch in ['x86_32', 'x86_64', 'arm32'])
 ...
 ```
 
+Around line 148, replace content inside of `protoc` section to hard code path to `protoc` binary:
+
+```
+protoc {
+	path = '/usr/bin/protoc'
+}
+```
+
+Once all of that is taken care of, run this command to build gRPC:
 
 ```shell
 ../gradlew java_pluginExecutable
@@ -146,25 +176,26 @@ binaries {
 
 ### 4. Build Bazel
 
-First, move out of the `protobuf/java` directory and clone Bazel's repository.
+First, move out of the `grpc-java/compiler` directory and clone Bazel's repository.
 
 ```shell
 cd ../..
 git clone https://github.com/bazelbuild/bazel.git
 ```
 
-Next, go into the new `bazel` directory and immediately checkout version 0.2.1 of Bazel.
+Next, go into the new `bazel` directory and immediately checkout version 0.3.1 of Bazel.
 
 ```shell
 cd bazel
-git checkout 0.2.1
+git checkout 0.3.2
 ```
 
-After that, copy the two Protobuf files mentioned earlier into the Bazel project. Note the naming of the files in this step- it must be precise.
+After that, copy the generated Protobuf and gRPC files we created earlier into the Bazel project. Note the naming of the files in this step- it must be precise.
 
 ```shell
 sudo cp /usr/bin/protoc third_party/protobuf/protoc-linux-arm32.exe
-sudo cp ../protobuf/java/target/protobuf-java-3.0.0-beta-2.jar third_party/protobuf/protobuf-java-3.0.0-beta-1.jar
+sudo cp ../protobuf/java/core/target/protobuf-java-3.0.0-beta-3.jar third_party/protobuf/protobuf-java-3.0.0-beta-1.jar
+sudo cp ../grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_32.exe
 ```
 
 Before building Bazel, we need to set the `javac` maximum heap size for this job, or else we'll get an OutOfMemoryError. To do this, we need to make a small addition to `bazel/scripts/bootstrap/compile.sh`. (Shout-out to @SangManLINUX for [pointing this out.](https://github.com/samjabrahams/tensorflow-on-raspberry-pi/issues/5#issuecomment-210965695).
@@ -173,7 +204,36 @@ Before building Bazel, we need to set the `javac` maximum heap size for this job
 nano scripts/bootstrap/compile.sh
 ```
 
-Move down to line 128, where you'll see the following block of code:
+Around line 46, you'll find this code:
+
+```shell
+if [ "${MACHINE_IS_64BIT}" = 'yes' ]; then
+	PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-x86_64.exe}
+	GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_64.exe}
+else
+	if [ "${MACHINE_IS_ARM}" = 'yes' ]; then
+		PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-arm32.exe}
+	else
+		PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-x86_32.exe}
+		GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_32.exe}
+	fi
+fi
+```
+
+Change it to the following:
+
+```shell
+if [ "${MACHINE_IS_64BIT}" = 'yes' ]; then
+	PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-x86_64.exe}
+	GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_64.exe}
+else
+	PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-arm32.exe}
+	GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-linux-arm32.exe}
+fi
+```
+
+
+Move down to line 149, where you'll see the following block of code:
 
 ```shell
 run "${JAVAC}" -classpath "${classpath}" -sourcepath "${sourcepath}" \
@@ -189,10 +249,41 @@ run "${JAVAC}" -classpath "${classpath}" -sourcepath "${sourcepath}" \
       -encoding UTF-8 "@${paramfile}" -J-Xmx500M
 ```
 
+Next up, we need to adjust `third_party/protobuf/BUILD` - open it up in your text editor.
+
+```
+nano third_party/protobuf/BUILD
+```
+
+We need to add this last line around line 29:
+
+```shell
+...
+	"//third_party:freebsd": ["protoc-linux-x86_32.exe"],
+	"//third_party:arm": ["protoc-linux-arm32.exe"],
+}),
+...
+```
+
+Finally, we have to add one thing to `tools/cpp/cc_configure.bzl` - open it up for editing:
+
+```shell
+nano tools/cpp/cc_configure.bzl
+```
+
+And place this in around line 141 (at the beginning of the `_get_cpu_value` function):
+
+```shell
+...
+"""Compute the cpu_value based on the OS name."""
+return "arm"
+...
+```
+
 Now we can build Bazel! _Note: this also takes some time._
 
 ```shell
-./compile.sh
+sudo ./compile.sh
 ```
 
 When the build finishes, you end up with a new binary, `output/bazel`. Copy that to your `/usr/local/bin` directory.
