@@ -73,6 +73,14 @@ sudo apt-get install python3-pip python3-numpy swig python3-dev
 sudo pip3 install wheel
 ```
 
+To be able to use optimization flags:
+
+```
+sudo apt-get install gcc-4.8 g++-4.8
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 100
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 100
+```
+
 Finally, for cleanliness, make a directory that will hold the Protobuf, Bazel, and TensorFlow repositories.
 
 ```shell
@@ -408,7 +416,7 @@ _Note: if you're looking to build to a specific version or commit of TensorFlow 
 Once in the directory, we have to write a nifty one-liner that is incredibly important. The next line goes through all files and changes references of 64-bit program implementations (which we don't have access to) to 32-bit implementations. Neat!
 
 ```shell
-grep -Rl 'lib64'| xargs sed -i 's/lib64/lib/g'
+grep -Rl 'lib64' | xargs sed -i 's/lib64/lib/g'
 ```
 
 Next, we need to delete a particular line in `tensorflow/core/platform/platform.h`. Open up the file in your favorite text editor:
@@ -443,7 +451,7 @@ _Note: if you want to build for Python 3, specify `/usr/bin/python3` for Python'
 Now we can use it to build TensorFlow! **Warning: This takes a really, really long time. Several hours.**
 
 ```shell
-bazel build -c opt --copt="-mfpu=neon" --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/tools/pip_package:build_pip_package
+bazel build -c opt --copt="-mfpu=neon" --copt="-funsafe-math-optimizations" --copt="-ftree-vectorize" --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/tools/pip_package:build_pip_package
 ```
 
 _Note: I toyed around with telling Bazel to use all four cores in the Raspberry Pi, but that seemed to make compiling more prone to completely locking up. This process takes a long time regardless, so I'm sticking with the more reliable options here. If you want to be bold, try using `--local_resources 1024,2.0,1.0` or `--local_resources 1024,4.0,1.0`_
@@ -457,7 +465,7 @@ bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 And then install it!
 
 ```shell
-sudo pip install /tmp/tensorflow_pkg/tensorflow-0.9-cp27-none-linux_armv7l.whl
+sudo pip install /tmp/tensorflow_pkg/tensorflow-0.10-cp27-none-linux_armv7l.whl
 ```
 
 ### 7. Cleaning Up
