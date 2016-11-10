@@ -73,7 +73,7 @@ sudo apt-get install python3-pip python3-numpy swig python3-dev
 sudo pip3 install wheel
 ```
 
-To be able to use optimization flags:
+To be able to take advantage of certain optimization flags:
 
 ```
 sudo apt-get install gcc-4.8 g++-4.8
@@ -451,7 +451,7 @@ _Note: if you want to build for Python 3, specify `/usr/bin/python3` for Python'
 Now we can use it to build TensorFlow! **Warning: This takes a really, really long time. Several hours.**
 
 ```shell
-bazel build -c opt --copt="-mfpu=neon" --copt="-funsafe-math-optimizations" --copt="-ftree-vectorize" --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/tools/pip_package:build_pip_package
+bazel build -c opt --copt="-mfpu=neon-vfpv4" --copt="-funsafe-math-optimizations" --copt="-ftree-vectorize" --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/tools/pip_package:build_pip_package
 ```
 
 _Note: I toyed around with telling Bazel to use all four cores in the Raspberry Pi, but that seemed to make compiling more prone to completely locking up. This process takes a long time regardless, so I'm sticking with the more reliable options here. If you want to be bold, try using `--local_resources 1024,2.0,1.0` or `--local_resources 1024,4.0,1.0`_
