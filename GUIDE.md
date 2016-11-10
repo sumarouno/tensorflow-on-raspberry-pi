@@ -22,11 +22,11 @@ Here's the basic plan: build a 32-bit version of [Protobuf](https://github.com/g
 
 1. [Install basic dependencies](#1-install-basic-dependencies)
 2. [Build Protobuf](#2-build-protobuf)
-3. [Build Bazel](#3-build-bazel)
-4. [Install USB Memory as Swap](#4-install-a-memory-drive-as-swap-for-compiling)
-5. [Compiling TensorFlow](#5-compiling-tensorflow)
-	* [Building the Distributed Runtime](#55-building-the-distributed-runtime)
-6. [Cleaning Up](#6-cleaning-up)
+3. [Build gRPC](#3-build-grpc)
+3. [Build Bazel](#4-build-bazel)
+4. [Install USB Memory as Swap](#5-install-a-memory-drive-as-swap-for-compiling)
+5. [Compiling TensorFlow](#6-compiling-tensorflow)
+6. [Cleaning Up](#7-cleaning-up)
 7. [References](#references)
 
 ## The Build
@@ -47,6 +47,14 @@ For Protobuf:
 sudo apt-get install autoconf automake libtool maven
 ```
 
+For gRPC:
+
+```
+sudo apt-get install oracle-java7-jdk
+# Select the jdk-7-oracle option for the update-alternatives command
+sudo update-alternatives --config java
+```
+
 For Bazel:
 
 ```shell
@@ -63,6 +71,14 @@ sudo pip install wheel
 # For Python 3.3+
 sudo apt-get install python3-pip python3-numpy swig python3-dev
 sudo pip3 install wheel
+```
+
+To be able to take advantage of certain optimization flags:
+
+```
+sudo apt-get install gcc-4.8 g++-4.8
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 100
+sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 100
 ```
 
 Finally, for cleanliness, make a directory that will hold the Protobuf, Bazel, and TensorFlow repositories.
@@ -84,7 +100,7 @@ Now move into the new `protobuf` directory, configure it, and `make` it. _Note: 
 
 ```shell
 cd protobuf
-git checkout d5fb408d
+git checkout v3.0.0-beta-3.3
 ./autogen.sh
 ./configure --prefix=/usr
 make -j 4
@@ -98,29 +114,96 @@ cd java
 mvn package
 ```
 
-After following these steps, you'll have two spiffy new files: `/usr/bin/protoc` and `protobuf/java/core/target/protobuf-java-3.0.0-beta2.jar`
+After following these steps, you'll have two spiffy new files: `/usr/bin/protoc` and `protobuf/java/core/target/protobuf-java-3.0.0-beta3.jar`
 
-### 3. Build Bazel
+### 3. Build gRPC
 
-First, move out of the `protobuf/java` directory and clone Bazel's repository.
+Next, we need to build [gRPC-Java](https://github.com/grpc/grpc-java), the Java implementation of [gRPC](http://www.grpc.io/). Move out of the `protobuf/java` directory and clone gRPC's repository.
+
+```shell
+cd ../..
+git clone https://github.com/grpc/grpc-java.git
+```
+
+```shell
+cd grpc-java
+git checkout v0.14.1
+```
+
+```shell
+cd compiler
+nano build.gradle
+```
+
+Around line 47:
+
+```
+gcc(Gcc) {
+	target("linux_arm-v7") {
+		cppCompiler.executable = "/usr/bin/gcc"
+	}
+}
+```
+
+Around line 60, add section for `'linux_arm-v7'`:
+
+```
+...
+	x86_64 {
+		architecture "x86_64"
+	}
+	'linux_arm-v7' {
+		architecture "arm32"
+		operatingSystem "linux"
+	}
+```
+
+Around line 64, add `'arm32'` to list of architectures:
+
+```
+...
+components {
+	java_plugin(NativeExecutableSpec) {
+			if (arch in ['x86_32', 'x86_64', 'arm32'])
+...
+```
+
+Around line 148, replace content inside of `protoc` section to hard code path to `protoc` binary:
+
+```
+protoc {
+	path = '/usr/bin/protoc'
+}
+```
+
+Once all of that is taken care of, run this command to build gRPC:
+
+```shell
+../gradlew java_pluginExecutable
+```
+
+### 4. Build Bazel
+
+First, move out of the `grpc-java/compiler` directory and clone Bazel's repository.
 
 ```shell
 cd ../..
 git clone https://github.com/bazelbuild/bazel.git
 ```
 
-Next, go into the new `bazel` direcotry and immediately checkout version 0.2.1 of Bazel.
+Next, go into the new `bazel` directory and immediately checkout version 0.3.1 of Bazel.
 
 ```shell
 cd bazel
-git checkout 0.2.1
+git checkout 0.3.2
 ```
 
-After that, copy the two Protobuf files mentioned earlier into the Bazel project. Note the naming of the files in this step- it must be precise.
+After that, copy the generated Protobuf and gRPC files we created earlier into the Bazel project. Note the naming of the files in this step- it must be precise.
 
 ```shell
 sudo cp /usr/bin/protoc third_party/protobuf/protoc-linux-arm32.exe
-sudo cp ../protobuf/java/target/protobuf-java-3.0.0-beta-2.jar third_party/protobuf/protobuf-java-3.0.0-beta-1.jar
+sudo cp ../protobuf/java/core/target/protobuf-java-3.0.0-beta-3.jar third_party/protobuf/protobuf-java-3.0.0-beta-1.jar
+sudo cp ../grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_32.exe
 ```
 
 Before building Bazel, we need to set the `javac` maximum heap size for this job, or else we'll get an OutOfMemoryError. To do this, we need to make a small addition to `bazel/scripts/bootstrap/compile.sh`. (Shout-out to @SangManLINUX for [pointing this out.](https://github.com/samjabrahams/tensorflow-on-raspberry-pi/issues/5#issuecomment-210965695).
@@ -129,7 +212,36 @@ Before building Bazel, we need to set the `javac` maximum heap size for this job
 nano scripts/bootstrap/compile.sh
 ```
 
-Move down to line 128, where you'll see the following block of code:
+Around line 46, you'll find this code:
+
+```shell
+if [ "${MACHINE_IS_64BIT}" = 'yes' ]; then
+	PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-x86_64.exe}
+	GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_64.exe}
+else
+	if [ "${MACHINE_IS_ARM}" = 'yes' ]; then
+		PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-arm32.exe}
+	else
+		PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-x86_32.exe}
+		GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_32.exe}
+	fi
+fi
+```
+
+Change it to the following:
+
+```shell
+if [ "${MACHINE_IS_64BIT}" = 'yes' ]; then
+	PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-x86_64.exe}
+	GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_64.exe}
+else
+	PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-arm32.exe}
+	GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-linux-arm32.exe}
+fi
+```
+
+
+Move down to line 149, where you'll see the following block of code:
 
 ```shell
 run "${JAVAC}" -classpath "${classpath}" -sourcepath "${sourcepath}" \
@@ -145,10 +257,41 @@ run "${JAVAC}" -classpath "${classpath}" -sourcepath "${sourcepath}" \
       -encoding UTF-8 "@${paramfile}" -J-Xmx500M
 ```
 
+Next up, we need to adjust `third_party/protobuf/BUILD` - open it up in your text editor.
+
+```
+nano third_party/protobuf/BUILD
+```
+
+We need to add this last line around line 29:
+
+```shell
+...
+	"//third_party:freebsd": ["protoc-linux-x86_32.exe"],
+	"//third_party:arm": ["protoc-linux-arm32.exe"],
+}),
+...
+```
+
+Finally, we have to add one thing to `tools/cpp/cc_configure.bzl` - open it up for editing:
+
+```shell
+nano tools/cpp/cc_configure.bzl
+```
+
+And place this in around line 141 (at the beginning of the `_get_cpu_value` function):
+
+```shell
+...
+"""Compute the cpu_value based on the OS name."""
+return "arm"
+...
+```
+
 Now we can build Bazel! _Note: this also takes some time._
 
 ```shell
-./compile.sh
+sudo ./compile.sh
 ```
 
 When the build finishes, you end up with a new binary, `output/bazel`. Copy that to your `/usr/local/bin` directory.
@@ -198,7 +341,7 @@ Move out of the `bazel` directory, and we'll move onto the next step.
 cd ..
 ```
 
-### 4. Install a Memory Drive as Swap for Compiling
+### 5. Install a Memory Drive as Swap for Compiling
 
 In order to succesfully build TensorFlow, your Raspberry Pi needs a little bit more memory to fall back on. Fortunately, this process is pretty straightforward. Grab a USB storage drive that has at least 1GB of memory. I used a flash drive I could live without that carried no important data. That said, we're only going to be using the drive as swap while we compile, so this process shouldn't do too much damage to a relatively new USB drive.
 
@@ -259,7 +402,7 @@ sudo nano /etc/fstab
 
 Alright! You've got swap! Don't throw out the `/dev/XXX` information yet- you'll need it to remove the device safely later on.
 
-### 5. Compiling TensorFlow
+### 6. Compiling TensorFlow
 
 First things first, clone the TensorFlow repository and move into the newly created directory.
 
@@ -273,7 +416,7 @@ _Note: if you're looking to build to a specific version or commit of TensorFlow 
 Once in the directory, we have to write a nifty one-liner that is incredibly important. The next line goes through all files and changes references of 64-bit program implementations (which we don't have access to) to 32-bit implementations. Neat!
 
 ```shell
-grep -Rl 'lib64'| xargs sed -i 's/lib64/lib/g'
+grep -Rl 'lib64' | xargs sed -i 's/lib64/lib/g'
 ```
 
 Next, we need to delete a particular line in `tensorflow/core/platform/platform.h`. Open up the file in your favorite text editor:
@@ -308,7 +451,7 @@ _Note: if you want to build for Python 3, specify `/usr/bin/python3` for Python'
 Now we can use it to build TensorFlow! **Warning: This takes a really, really long time. Several hours.**
 
 ```shell
-bazel build -c opt --copt="-mfpu=neon" --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/tools/pip_package:build_pip_package
+bazel build -c opt --copt="-mfpu=neon-vfpv4" --copt="-funsafe-math-optimizations" --copt="-ftree-vectorize" --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/tools/pip_package:build_pip_package
 ```
 
 _Note: I toyed around with telling Bazel to use all four cores in the Raspberry Pi, but that seemed to make compiling more prone to completely locking up. This process takes a long time regardless, so I'm sticking with the more reliable options here. If you want to be bold, try using `--local_resources 1024,2.0,1.0` or `--local_resources 1024,4.0,1.0`_
@@ -322,10 +465,10 @@ bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 And then install it!
 
 ```shell
-sudo pip install /tmp/tensorflow_pkg/tensorflow-0.9-cp27-none-linux_armv7l.whl
+sudo pip install /tmp/tensorflow_pkg/tensorflow-0.10-cp27-none-linux_armv7l.whl
 ```
 
-### 6. Cleaning Up
+### 7. Cleaning Up
 
 There's one last bit of house-cleaning we need to do before we're done: remove the USB drive that we've been using as swap.
 
