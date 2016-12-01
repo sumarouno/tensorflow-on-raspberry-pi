@@ -17,7 +17,7 @@ To run this benchmark, I use a modified version of the example [classify_image.p
 <table>
 
 	<tr>
-		<th colspan="6">_TensorFlow version 0.11.0_</th>
+		<th colspan="6"><i>TensorFlow version 0.11.0</i></th>
 	</tr>
 
 	<tr>
