@@ -69,6 +69,12 @@ tf.app.flags.DEFINE_string('image_file', '',
                            """Absolute path to image file.""")
 tf.app.flags.DEFINE_integer('num_top_predictions', 5,
                             """Display this many predictions.""")
+# MODIFICATION BY SAM ABRAHAMS
+tf.app.flags.DEFINE_integer('warmup_runs', 10,
+                            "Number of times to run Session before starting test")
+tf.app.flags.DEFINE_integer('num_runs', 25,
+                            "Number of sample runs to collect benchmark statistics")
+# END OF MODIFICATION
 
 # pylint: disable=line-too-long
 DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
@@ -159,21 +165,14 @@ def run_inference_on_image(image):
   Returns:
     Nothing
   """
-
-  # MODIFICATION BY SAM ABRAHAMS
-  start_time = time.time()
-  # END OF MODIFICATION
-
   if not tf.gfile.Exists(image):
     tf.logging.fatal('File does not exist %s', image)
   image_data = tf.gfile.FastGFile(image, 'rb').read()
 
   # Creates graph from saved GraphDef.
+  start_time = time.time()
   create_graph()
-  
-  # MODIFICATION BY SAM ABRAHAMS
-  mid_time = time.time()
-  # END OF MODIFICATION
+  graph_time = time.time() - start_time
 
   with tf.Session() as sess:
     # Some useful tensors:
@@ -185,27 +184,21 @@ def run_inference_on_image(image):
     #   encoding of the image.
     # Runs the softmax tensor by feeding the image_data as input to the graph.
     softmax_tensor = sess.graph.get_tensor_by_name('softmax:0')
-    predictions = sess.run(softmax_tensor,
-                           {'DecodeJpeg/contents:0': image_data})
-    predictions = np.squeeze(predictions)
-
-    # Creates node ID --> English string lookup.
-    node_lookup = NodeLookup()
-
-    top_k = predictions.argsort()[-FLAGS.num_top_predictions:][::-1]
-
-    for node_id in top_k:
-      human_string = node_lookup.id_to_string(node_id)
-      score = predictions[node_id]
-      print('%s (score = %.5f)' % (human_string, score))
-  
-  # MODIFICATION BY SAM ABRAHAMS
-  end_time = time.time()
-  graph_time = mid_time - start_time
-  eval_time = end_time - mid_time
-  print('Build graph time: %f' % graph_time)
-  print('Eval time: %f' % eval_time)
-  # END OF MODIFICATION
+    # MODIFICATION BY SAM ABRAHAMS
+    for i in range(FLAGS.warmup_runs):
+      predictions = sess.run(softmax_tensor,
+                             {'DecodeJpeg/contents:0': image_data})
+    runs = []
+    for i in range(FLAGS.num_runs):
+      start_time = time.time()
+      predictions = sess.run(softmax_tensor,
+                             {'DecodeJpeg/contents:0': image_data})
+      runs.append(time.time() - start_time)
+    for i, run in enumerate(runs):
+      print('Run %03d:\t%0.4f seconds' % (i, run))
+    print('Average run: %0.4f' % float(sum(runs) / len(runs)))
+    print('Build graph time: %0.4f' % graph_time)
+    # END OF MODIFICATION
 
 def maybe_download_and_extract():
   """Download and extract model tar file."""
