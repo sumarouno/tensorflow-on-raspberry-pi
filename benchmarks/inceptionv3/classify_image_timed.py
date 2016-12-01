@@ -196,8 +196,13 @@ def run_inference_on_image(image):
       runs.append(time.time() - start_time)
     for i, run in enumerate(runs):
       print('Run %03d:\t%0.4f seconds' % (i, run))
+    print('---')
+    print('Best run: %0.4f' % min(runs))
+    print('Worst run: %0.4f' % max(runs))
     print('Average run: %0.4f' % float(sum(runs) / len(runs)))
     print('Build graph time: %0.4f' % graph_time)
+    print('Number of warmup runs: %d' % FLAGS.warmup_runs)
+    print('Number of test runs: %d' % FLAGS.num_runs)
     # END OF MODIFICATION
 
 def maybe_download_and_extract():
