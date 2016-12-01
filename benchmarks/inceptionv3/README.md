@@ -1,138 +1,117 @@
-# Inception-v3 speed: Raspberry Pi 3 vs 2013 MacBook Pro
+# Inception-v3 speed: Raspberry Pi 3
+
+_Latest update: December 1, 2016; TensorFlow 0.11.0_
 
 ## About
 
-This file contains some very basic run-time statistics for [TensorFlow's pre-trained Inception-v3 model](https://www.tensorflow.org/versions/r0.7/tutorials/image_recognition/index.html) running on a [Raspberry Pi 3 Model B](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/) as compared to an [Early 2013 15 inch Retina MacBook Pro](https://support.apple.com/kb/SP669?locale=en_US).
+This file contains some very basic run-time statistics for [TensorFlow's pre-trained Inception-v3 model](https://www.tensorflow.org/versions/r0.7/tutorials/image_recognition/index.html) running on a [Raspberry Pi 3 Model B](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/) as compared to an [Early 2013 15 inch Retina MacBook Pro](https://support.apple.com/kb/SP669?locale=en_US) with an Intel i7-3740QM CPU as well as a desktop rig running Ubuntu 14.04 with a Titan X Maxwell GPU and Intel i7-5820K CPU.
 
-Out of the box, Inception-v3 is available to run from either a Python script [(tensorflow/models/image/imagenet/classify_image.py)](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/models/image/imagenet) or as a compiled C++ binary [(tensorflow/examples/label_image/main.cc)](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/examples/label_image). To get the rough benchmarks used in this file, I made minor modifications in both files to print out run-time information after processing. The modified files are available in this directory: [classify\_image\_timed.py](classify_image_timed.py) and [main.cc](main.cc) Both tests used the default grace_hopper.jpg image used in the Inception-v3 C++ file. 
+To run this benchmark, I use a modified version of the example [classify_image.py script](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/models/image/imagenet). I made minor modifications to collect and print out run-time information after processing. The modified file is available here: [classify\_image\_timed.py](classify_image_timed.py).
 
 ## Summary
 
-* _Build_ refers to the amount of time it took to load and build the Inception-v3 graph from storage
-* _Eval_ refers to the amount of time it took to classify the image once it was loaded into memory
-* _Total_ is the sum of _Build_ and _Eval_
+* _warmup_runs_ refers to the number of calls to `Session.run` before starting the benchmarking in order to "warmup" the model. TensorFlow makes adjustments on the fly, so the first few times running the model are slower than subsequent runs
+* A _run_ is the time between the start of a call to `Session.run` and when it returns. We list the best, worst, and average time (averaged over 25 runs)
+* _Build_ is the amount of time spent constructing the Inception model from the protobuf file.
 
 <table>
 
 	<tr>
+		<th colspan="6">_TensorFlow version 0.11.0_</th>
+	</tr>
+
+	<tr>
 		<td></td>
-		<th colspan="3">Python (CPU)</th>
-		<th colspan="3">C++ (CPU)</th>
+		<th><i>Model</i></th>
+		<th><i>Best run (sec)</i></th>
+		<th><i>Worst run (sec)</i></th>
+		<th><i>Average run (sec)</i></th>
+		<th><i>Build time(sec)</i></th>
 	</tr>
-	
+
 	<tr>
-		<td><i>Model</i></td>
-		<td><i>Build (sec)</i></td>
-		<td><i>Eval (sec)</i></td>
-		<td><i>Total (sec)</i></td>
-		<td><i>Build (sec)</i></td>
-		<td><i>Eval (sec)</i></td>
-		<td><i>Total (sec)</i></td>
+		<th rowspan="4"><b>warmup_runs=10</b></th>
+		<td><b>Raspberry Pi 3</b></td>
+		<td><b>1.8646</b></td>
+		<td><b>2.1782</b></td>
+		<td><b>1.9805</b></td>
+		<td><b>4.8962</b></td>
 	</tr>
-	
+
 	<tr>
-		<td>Raspberry Pi 3</td>
-		<td>3.496</td>
-		<td>11.004</td>
-		<td>14.500</td>
-		<td>0.436</td>
-		<td>6.969</td>
-		<td>7.405</td>
+		<td>Intel i7-3740QM (Early 2013 MacBook Pro)</td>
+		<td>0.2146</td>
+		<td>0.2425</td>
+		<td>0.2272</td>
+		<td>1.3104</td>
 	</tr>
-	
+
 	<tr>
-		<td>2013 MacBook Pro</td>
-		<td>0.747</td>
-		<td>1.421</td>
-		<td>2.168</td>
-		<td>0.253</td>
-		<td>6.036</td>
-		<td>6.289</td>
+		<td>Intel i7-5820K (Ubuntu 14.04)</td>
+		<td>0.1397</td>
+		<td>0.1730</td>
+		<td>0.1567</td>
+		<td>0.7064</td>
 	</tr>
-	
+
 	<tr>
-		<td>Time increase on Raspberry Pi</td>
-		<td>4.68x</td>
-		<td><b>7.744x</b></td>
-		<td>6.688x</td>
-		<td>1.723x</td>
-		<td><b>1.155x</b></td>
-		<td>1.177x</td>
+		<td>NVIDIA Titan X (Maxwell), Intel i7-5820K (Ubuntu 14.04)</td>
+		<td>0.0240</td>
+		<td>0.0290</td>
+		<td>0.0259</td>
+		<td>0.9566</td>
 	</tr>
-	
+
+	<tr>
+		<th rowspan="4"><b>warmup_runs=0</b></th>
+		<td><b>Raspberry Pi 3</b></td>
+		<td><b>1.8541</b></td>
+		<td><b>6.3338</b></td>
+		<td><b>2.0656</b></td>
+		<td><b>4.9755</b></td>
+	</tr>
+
+	<tr>
+		<td>Intel i7-3740QM (Early 2013 Retina MacBook Pro)</td>
+		<td>0.2174</td>
+		<td>1.3151</td>
+		<td>0.2662</td>
+		<td>1.2761</td>
+	</tr>
+
+	<tr>
+		<td>Intel i7-5820K (Ubuntu 14.04)</td>
+		<td>0.1435</td>
+		<td>0.7027</td>
+		<td>0.1750</td>
+		<td>0.7103</td>
+	</tr>
+
+	<tr>
+		<td>NVIDIA Titan X (Maxwell), Intel i7-5820K (Ubuntu 14.04)</td>
+		<td>0.0232</td>
+		<td>1.5800</td>
+		<td>0.0871</td>
+		<td>0.7659</td>
+	</tr>
+
 </table>
 
 ### Remarks
 
-* The good-ish news: the RPi3 appears to achieve fair performance relative to the MacBook Pro when running the compiled C++ binary
-* The bad news: The Python version is **really** slow. From just this test, I can't tell if the Python bindings to C++ aren't working properly, but I think it's definitely worth looking into
-	* Dan Brickley (@danbri) shared some results when [testing out a camera module on his Raspberry Pi 3](https://twitter.com/danbri/status/709903532216995842). Direct link to Gist [here](https://gist.githubusercontent.com/danbri/ee6323d78ca14e616e4e/raw/6f50a897a59cb25d6c5e8f43fdfb0392fe9945d8/gistfile1.txt)
-	* Pete Warden (@petewarden) mentioned that the compiler [may not be using NEON](https://github.com/tensorflow/tensorflow/issues/445#issuecomment-196021885) on the Raspberry Pi 2 while attempting to build TensorFlow. While my tests did not take a minute to run, @danbri's results suggest similar performance to @petewarden's; this may be a first place to look for improvements
-* On Mac, the Python version appears to run _much_ faster than the C++ binary. I'm not quite sure how this happened. I'd like to test on other systems to see if the results hold.
-* During the first run of the C++ binary after booting the system, there was a noticable slowdown during the 'model building'
+* Test performance has gotten significantly better over the past several releases of TensorFlow, though running Inception on a Raspberry Pi still takes longer than a second when using Python
+* Warming up your `Session` is _crucial_. There have been many issues opened in this repo asking how to improve performance, so here's the number one thing to start with: keep your `Session` persistent to take advantage of automatic optimization tweaks.
+* Along the same lines: do _not_ simply call your Python script from bash every time you want to classify an image. It takes multiple seconds to rebuild the Inception graph from scratch, which can slow down your model by multiple times (this test doesn't include the time it takes to import `tensorflow`, which is another thing to benchmark...). This goes for pretty much any TensorFlow model you use- keep some sort of rudimentary server running that can respond to requests and utilize a live TensorFlow `Session`
+* Running the [TensorFlow benchmark tool](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/tools/benchmark) shows sub-second (~500-600ms) average run times for the Raspberry Pi (I'll need to do another write-up with more details). Since this benchmark is run entirely in C++, we'd expect it to run faster than through Python. The question is whether or not all ~1.5 seconds of difference between these tests is entirely due to the communication layer between Python and the C++ core.
 
-## Outputs
+## About `classify_image_timed.py`
 
-### Python
+I add two additional flags to `classify_image_timed.py` which allow users to easily change the number of test runs (runs that will collect information), as well as the number of "warmup" runs used. Simply pass in a number to `--num_runs` or `--warmup_runs` when calling the script:
 
-#### Raspberry Pi 3, Raspbian 8.0
-```
-giant panda, panda, panda bear, coon bear, Ailuropoda melanoleuca (score = 0.89233)
-indri, indris, Indri indri, Indri brevicaudatus (score = 0.00859)
-lesser panda, red panda, panda, bear cat, cat bear, Ailurus fulgens (score = 0.00264)
-custard apple (score = 0.00141)
-earthstar (score = 0.00107)
-Build graph time: 3.495808
-Eval time: 11.004332
-```
+```bash
+# Use a sample size of 100 runs
+$ python classify_image_timed.py --num_runs=100
 
-#### Early 2013, 15-inch MacBook Pro (2.7 GHz Intel Core i7), OS X 10.11.1
-
-```
-giant panda, panda, panda bear, coon bear, Ailuropoda melanoleuca (score = 0.89233)
-indri, indris, Indri indri, Indri brevicaudatus (score = 0.00859)
-lesser panda, red panda, panda, bear cat, cat bear, Ailurus fulgens (score = 0.00264)
-custard apple (score = 0.00141)
-earthstar (score = 0.00107)
-Build graph time: 0.746465
-Eval time: 1.421328
-```
-
----
-
-### C++
-
-#### Raspberry Pi 3, Raspbian 8.0
-```
-I tensorflow/examples/label_image/main.cc:210] military uniform (866): 0.647298
-I tensorflow/examples/label_image/main.cc:210] suit (794): 0.0477194
-I tensorflow/examples/label_image/main.cc:210] academic gown (896): 0.0232409
-I tensorflow/examples/label_image/main.cc:210] bow tie (817): 0.0157354
-I tensorflow/examples/label_image/main.cc:210] bolo tie (940): 0.0145024
-
-# First time running after booting system:
-4450 milliseconds to build graph
-7005 milliseconds to evaluate image
-
-# Subsequent time
-436 milliseconds to build graph
-6969 milliseconds to evaluate image
-```
-
-#### Early 2013, 15-inch MacBook Pro (2.7 GHz Intel Core i7), OS X 10.11.1
-
-```
-I tensorflow/examples/label_image/main.cc:210] military uniform (866): 0.647299
-I tensorflow/examples/label_image/main.cc:210] suit (794): 0.0477195
-I tensorflow/examples/label_image/main.cc:210] academic gown (896): 0.0232407
-I tensorflow/examples/label_image/main.cc:210] bow tie (817): 0.0157355
-I tensorflow/examples/label_image/main.cc:210] bolo tie (940): 0.0145023
-
-# First running time after booting system:
-468 milliseconds to build graph
-6124 milliseconds to evaluate image
-
-# Subsequent running times
-253 milliseconds to build graph
-6036 milliseconds to evaluate image
+# Don't include any warmup runs
+$ python classify_image_timed.py --warmup_runs=0
 ```
