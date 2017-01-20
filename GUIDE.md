@@ -47,14 +47,6 @@ For Protobuf:
 sudo apt-get install autoconf automake libtool maven
 ```
 
-For gRPC:
-
-```
-sudo apt-get install oracle-java7-jdk
-# Select the jdk-7-oracle option for the update-alternatives command
-sudo update-alternatives --config java
-```
-
 For Bazel:
 
 ```shell
@@ -100,110 +92,39 @@ Now move into the new `protobuf` directory, configure it, and `make` it. _Note: 
 
 ```shell
 cd protobuf
-git checkout v3.0.0-beta-3.3
+git checkout v3.0.0
 ./autogen.sh
-./configure --prefix=/usr
+./configure
 make -j 4
 sudo make install
+sudo ldconfig
 ```
 
-Once it's made, we can move into the `java` directory and use Maven to build the project.
+Great! You should now have `protoc` installed in `/usr/local/bin`, and should be on your `PATH`. Check to make sure it's working correctly:
 
 ```shell
-cd java
-mvn package
+protoc --version
 ```
 
-After following these steps, you'll have two spiffy new files: `/usr/bin/protoc` and `protobuf/java/core/target/protobuf-java-3.0.0-beta3.jar`
+Now that we have the `protoc` compiler, we can start building Bazel. Let's move up a directory and do that.
 
-### 3. Build gRPC
+```
+cd ..
+```
 
-Next, we need to build [gRPC-Java](https://github.com/grpc/grpc-java), the Java implementation of [gRPC](http://www.grpc.io/). Move out of the `protobuf/java` directory and clone gRPC's repository.
+### 3. Build Bazel
+
+To build [Bazel](https://github.com/bazelbuild/bazel), we're going to need to download a zip file containing a distribution archive. Let's do that now and extract it into a new directory called `bazel`:
 
 ```shell
-cd ../..
-git clone https://github.com/grpc/grpc-java.git
+wget https://github.com/bazelbuild/bazel/releases/download/0.4.3/bazel-0.4.3-dist.zip
+unzip -d bazel bazel-0.4.3-dist.zip
 ```
 
-```shell
-cd grpc-java
-git checkout v0.14.1
-```
-
-```shell
-cd compiler
-nano build.gradle
-```
-
-Around line 47:
-
-```
-gcc(Gcc) {
-	target("linux_arm-v7") {
-		cppCompiler.executable = "/usr/bin/gcc"
-	}
-}
-```
-
-Around line 60, add section for `'linux_arm-v7'`:
-
-```
-...
-	x86_64 {
-		architecture "x86_64"
-	}
-	'linux_arm-v7' {
-		architecture "arm32"
-		operatingSystem "linux"
-	}
-```
-
-Around line 64, add `'arm32'` to list of architectures:
-
-```
-...
-components {
-	java_plugin(NativeExecutableSpec) {
-			if (arch in ['x86_32', 'x86_64', 'arm32'])
-...
-```
-
-Around line 148, replace content inside of `protoc` section to hard code path to `protoc` binary:
-
-```
-protoc {
-	path = '/usr/bin/protoc'
-}
-```
-
-Once all of that is taken care of, run this command to build gRPC:
-
-```shell
-../gradlew java_pluginExecutable
-```
-
-### 4. Build Bazel
-
-First, move out of the `grpc-java/compiler` directory and clone Bazel's repository.
-
-```shell
-cd ../..
-git clone https://github.com/bazelbuild/bazel.git
-```
-
-Next, go into the new `bazel` directory and immediately checkout version 0.3.1 of Bazel.
+Once it's done downloading and extracting, we can move into the directory to make a few changes:
 
 ```shell
 cd bazel
-git checkout 0.3.2
-```
-
-After that, copy the generated Protobuf and gRPC files we created earlier into the Bazel project. Note the naming of the files in this step- it must be precise.
-
-```shell
-sudo cp /usr/bin/protoc third_party/protobuf/protoc-linux-arm32.exe
-sudo cp ../protobuf/java/core/target/protobuf-java-3.0.0-beta-3.jar third_party/protobuf/protobuf-java-3.0.0-beta-1.jar
-sudo cp ../grpc-java/compiler/build/exe/java_plugin/protoc-gen-grpc-java third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_32.exe
 ```
 
 Before building Bazel, we need to set the `javac` maximum heap size for this job, or else we'll get an OutOfMemoryError. To do this, we need to make a small addition to `bazel/scripts/bootstrap/compile.sh`. (Shout-out to @SangManLINUX for [pointing this out.](https://github.com/samjabrahams/tensorflow-on-raspberry-pi/issues/5#issuecomment-210965695).
@@ -212,36 +133,7 @@ Before building Bazel, we need to set the `javac` maximum heap size for this job
 nano scripts/bootstrap/compile.sh
 ```
 
-Around line 46, you'll find this code:
-
-```shell
-if [ "${MACHINE_IS_64BIT}" = 'yes' ]; then
-	PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-x86_64.exe}
-	GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_64.exe}
-else
-	if [ "${MACHINE_IS_ARM}" = 'yes' ]; then
-		PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-arm32.exe}
-	else
-		PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-x86_32.exe}
-		GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_32.exe}
-	fi
-fi
-```
-
-Change it to the following:
-
-```shell
-if [ "${MACHINE_IS_64BIT}" = 'yes' ]; then
-	PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-x86_64.exe}
-	GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-x86_64.exe}
-else
-	PROTOC=${PROTOC:-third_party/protobuf/protoc-linux-arm32.exe}
-	GRPC_JAVA_PLUGIN=${GRPC_JAVA_PLUGIN:-third_party/grpc/protoc-gen-grpc-java-0.15.0-linux-linux-arm32.exe}
-fi
-```
-
-
-Move down to line 149, where you'll see the following block of code:
+Move down to line 137, where you'll see the following block of code:
 
 ```shell
 run "${JAVAC}" -classpath "${classpath}" -sourcepath "${sourcepath}" \
@@ -257,29 +149,13 @@ run "${JAVAC}" -classpath "${classpath}" -sourcepath "${sourcepath}" \
       -encoding UTF-8 "@${paramfile}" -J-Xmx500M
 ```
 
-Next up, we need to adjust `third_party/protobuf/BUILD` - open it up in your text editor.
-
-```
-nano third_party/protobuf/BUILD
-```
-
-We need to add this last line around line 29:
-
-```shell
-...
-	"//third_party:freebsd": ["protoc-linux-x86_32.exe"],
-	"//third_party:arm": ["protoc-linux-arm32.exe"],
-}),
-...
-```
-
 Finally, we have to add one thing to `tools/cpp/cc_configure.bzl` - open it up for editing:
 
 ```shell
 nano tools/cpp/cc_configure.bzl
 ```
 
-And place this in around line 141 (at the beginning of the `_get_cpu_value` function):
+Place the line `return "arm"` around line 141 (at the beginning of the `_get_cpu_value` function):
 
 ```shell
 ...
@@ -297,7 +173,6 @@ sudo ./compile.sh
 When the build finishes, you end up with a new binary, `output/bazel`. Copy that to your `/usr/local/bin` directory.
 
 ```shell
-sudo mkdir /usr/local/bin
 sudo cp output/bazel /usr/local/bin/bazel
 ```
 
@@ -341,7 +216,7 @@ Move out of the `bazel` directory, and we'll move onto the next step.
 cd ..
 ```
 
-### 5. Install a Memory Drive as Swap for Compiling
+### 4. Install a Memory Drive as Swap for Compiling
 
 In order to succesfully build TensorFlow, your Raspberry Pi needs a little bit more memory to fall back on. Fortunately, this process is pretty straightforward. Grab a USB storage drive that has at least 1GB of memory. I used a flash drive I could live without that carried no important data. That said, we're only going to be using the drive as swap while we compile, so this process shouldn't do too much damage to a relatively new USB drive.
 
@@ -402,7 +277,7 @@ sudo nano /etc/fstab
 
 Alright! You've got swap! Don't throw out the `/dev/XXX` information yet- you'll need it to remove the device safely later on.
 
-### 6. Compiling TensorFlow
+### 5. Compiling TensorFlow
 
 First things first, clone the TensorFlow repository and move into the newly created directory.
 
@@ -425,7 +300,7 @@ Next, we need to delete a particular line in `tensorflow/core/platform/platform.
 $ sudo nano tensorflow/core/platform/platform.h
 ```
 
-Now, scroll down toward the bottom and delete the following line containing `#define IS_MOBILE_PLATFORM`:
+Now, scroll down toward the bottom and delete the following line containing `#define IS_MOBILE_PLATFORM` (around line 48):
 
 ```cpp
 #elif defined(__arm__)
@@ -436,7 +311,7 @@ Now, scroll down toward the bottom and delete the following line containing `#de
 
 This keeps our Raspberry Pi device (which has an ARM CPU) from being recognized as a mobile device.
 
-Now let's configure Bazel:
+Now let's configure the build:
 
 ```shell
 $ ./configure
@@ -444,14 +319,18 @@ $ ./configure
 Please specify the location of python. [Default is /usr/bin/python]: /usr/bin/python
 Do you wish to build TensorFlow with Google Cloud Platform support? [y/N] N
 Do you wish to build TensorFlow with GPU support? [y/N] N
-```
+Do you wish to build TensorFlow with Hadoop File System support? [y/N] N
+Please input the desired Python library path to use. Default is [/usr/local/lib/python2.7/dist-packages]
+Do you wish to build TensorFlow with OpenCL support? [y/N] N
+Do you wish to build TensorFlow with GPU support? [y/N] 
+N```
 
 _Note: if you want to build for Python 3, specify `/usr/bin/python3` for Python's location._
 
 Now we can use it to build TensorFlow! **Warning: This takes a really, really long time. Several hours.**
 
 ```shell
-bazel build -c opt --copt="-mfpu=neon-vfpv4" --copt="-funsafe-math-optimizations" --copt="-ftree-vectorize" --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/tools/pip_package:build_pip_package
+bazel build -c opt --copt="-mfpu=neon-vfpv4" --copt="-funsafe-math-optimizations" --copt="-ftree-vectorize" --copt="-fomit-frame-pointer" --local_resources 1024,1.0,1.0 --verbose_failures tensorflow/tools/pip_package:build_pip_package
 ```
 
 _Note: I toyed around with telling Bazel to use all four cores in the Raspberry Pi, but that seemed to make compiling more prone to completely locking up. This process takes a long time regardless, so I'm sticking with the more reliable options here. If you want to be bold, try using `--local_resources 1024,2.0,1.0` or `--local_resources 1024,4.0,1.0`_
@@ -465,10 +344,10 @@ bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 And then install it!
 
 ```shell
-sudo pip install /tmp/tensorflow_pkg/tensorflow-0.11-cp27-none-linux_armv7l.whl
+sudo pip install /tmp/tensorflow_pkg/tensorflow-0.12.1-cp27-none-linux_armv7l.whl
 ```
 
-### 7. Cleaning Up
+### 6. Cleaning Up
 
 There's one last bit of house-cleaning we need to do before we're done: remove the USB drive that we've been using as swap.
 
@@ -490,7 +369,7 @@ Then reboot your Raspberry Pi.
 
 ## References
 
-1. [Building TensorFlow for Jetson TK1](http://cudamusing.blogspot.com/2015/11/building-tensorflow-for-jetson-tk1.html)
+1. [Building TensorFlow for Jetson TK1](http://cudamusing.blogspot.com/2015/11/building-tensorflow-for-jetson-tk1.html) (an update to this post is available [here](http://cudamusing.blogspot.com/2016/06/tensorflow-08-on-jetson-tk1.html))
 2. [Turning a USB Drive into swap](http://askubuntu.com/questions/173676/how-to-make-a-usb-stick-swap-disk)
 3. [Safely removing USB swap space](http://askubuntu.com/questions/616437/is-it-safe-to-delete-a-swap-partition-on-a-usb-install)
 

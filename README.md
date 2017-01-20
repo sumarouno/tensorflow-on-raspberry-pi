@@ -1,5 +1,9 @@
 # Installing TensorFlow on Raspberry Pi 3 (and probably 2 as well)
 
+## Donate
+
+If you find the binaries and instructions in this repository useful, [please consider donating to help keep this repository maintained](https://pledgie.com/campaigns/33260). It takes hours of work for each new version of TensorFlow, as well as responding to issues and pull requests.
+
 ## Intro
 
 _We did it!_ It took a lot of head-banging and several indirect passings-of-the-torch, but we finally got TensorFlow compiled and running properly on the Raspberry Pi! Hopefully this will enable more hardware-based machine learning projects, as well as making the distributed aspects of TensorFlow more accessible.
@@ -34,12 +38,12 @@ Next, download the wheel file from this repository and install it:
 
 ```shell
 # For Python 2.7
-$ wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases/download/v0.11.0/tensorflow-0.11.0-cp27-none-linux_armv7l.whl
-$ sudo pip install tensorflow-0.11.0-cp27-none-linux_armv7l.whl
+$ wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases/download/v0.12.1/tensorflow-0.12.1-cp27-none-linux_armv7l.whl
+$ sudo pip install tensorflow-0.12.1-cp27-none-linux_armv7l.whl
 
 # For Python 3.3+
-$ wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases/download/v0.11.0/tensorflow-0.11.0-py3-none-any.whl
-$ sudo pip3 install tensorflow-0.11.0-py3-none-any.whl
+$ wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases/download/v0.12.1/tensorflow-0.12.1-py3-none-any.whl
+$ sudo pip3 install tensorflow-0.12.1-py3-none-any.whl
 ```
 
 And that should be it!
@@ -57,13 +61,13 @@ _This section will attempt to maintain a list of remedies for problems that may 
 This wheel was built with Python 2.7, and can't be installed with a version of `pip` that uses Python 3. If you get the above message, try running the following command instead:
 
 ```
-$ sudo pip2 install tensorflow-0.11-cp27-none-linux_armv7l.whl
+$ sudo pip2 install tensorflow-0.12.1-cp27-none-linux_armv7l.whl
 ```
 
 Vice-versa for trying to install the Python 3 wheel. If you get the error "tensorflow-0.11-py3-none-any.whl is not a supported wheel on this platform.", try this command:
 
 ```
-$ sudo pip3 install tensorflow-0.11-py3-none-any.whl
+$ sudo pip3 install tensorflow-0.12.1-py3-none-any.whl
 ```
 
 ## Building from Source
