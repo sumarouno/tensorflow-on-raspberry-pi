@@ -22,11 +22,10 @@ Here's the basic plan: build a 32-bit version of [Protobuf](https://github.com/g
 
 1. [Install basic dependencies](#1-install-basic-dependencies)
 2. [Build Protobuf](#2-build-protobuf)
-3. [Build gRPC](#3-build-grpc)
-3. [Build Bazel](#4-build-bazel)
-4. [Install USB Memory as Swap](#5-install-a-memory-drive-as-swap-for-compiling)
-5. [Compiling TensorFlow](#6-compiling-tensorflow)
-6. [Cleaning Up](#7-cleaning-up)
+3. [Build Bazel](#3-build-bazel)
+4. [Install USB Memory as Swap](#4-install-a-memory-drive-as-swap-for-compiling)
+5. [Compiling TensorFlow](#5-compiling-tensorflow)
+6. [Cleaning Up](#6-cleaning-up)
 7. [References](#references)
 
 ## The Build
@@ -50,7 +49,9 @@ sudo apt-get install autoconf automake libtool maven
 For Bazel:
 
 ```shell
-sudo apt-get install pkg-config zip g++ zlib1g-dev unzip
+sudo apt-get install pkg-config zip g++ zlib1g-dev unzip openjdk-8-jdk
+# Select the java-8-openjdk option for the update-alternatives command
+sudo update-alternatives --config java
 ```
 
 For TensorFlow:
