@@ -312,6 +312,21 @@ Now, scroll down toward the bottom and delete the following line containing `#de
 
 This keeps our Raspberry Pi device (which has an ARM CPU) from being recognized as a mobile device.
 
+Finally, we have to adjust the protocol to access the Numeric JS library- for some reason the Cloudflare security certificates don't work properly over `https`. We'll need to fix this in the Bazel `WORKSPACE` file:
+
+```shell
+sudo nano WORKSPACE
+```
+
+Around line 283, change `https` to `http`:
+
+```
+http_file(
+  name = "numericjs_numeric_min_js",
+  url = "http://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js",
+)
+```
+
 Now let's configure the build:
 
 ```shell
