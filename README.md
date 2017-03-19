@@ -82,6 +82,8 @@ Vice-versa for trying to install the Python 3 wheel. If you get the error "tenso
 sudo pip3 install tensorflow-1.0.0-cp34-cp34m-linux_armv7l.whl
 ```
 
+**Note: the provided binaries are for Python 2.7 and 3.4 _only_. If you've installed Python 3.5/3.6 from source on your machine, you'll need to either explicitly install these wheels for 3.4, or you'll need to build TensorFlow [from source](GUIDE.md). Once there's an officially supported installation of Python 3.5+, this repo will start including wheels for those versions.**
+
 ## Building from Source
 
 [_Step-by-step guide_](GUIDE.md)
