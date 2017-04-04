@@ -283,7 +283,7 @@ cd ..
 First things first, clone the TensorFlow repository and move into the newly created directory.
 
 ```shell
-git clone --recurse-submodules https://github.com/tensorflow/tensorflow
+git clone --recurse-submodules https://github.com/tensorflow/tensorflow.git
 cd tensorflow
 ```
 
@@ -360,7 +360,7 @@ bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 And then install it!
 
 ```shell
-sudo pip install /tmp/tensorflow_pkg/tensorflow-1.0.0-cp27-none-linux_armv7l.whl
+sudo pip install /tmp/tensorflow_pkg/tensorflow-1.0.1-cp27-none-linux_armv7l.whl
 ```
 
 ### 6. Cleaning Up
