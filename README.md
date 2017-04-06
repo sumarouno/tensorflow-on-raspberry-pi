@@ -79,7 +79,7 @@ sudo pip2 install tensorflow-1.0.1-cp27-none-linux_armv7l.whl
 Vice-versa for trying to install the Python 3 wheel. If you get the error "tensorflow-1.0.1-cp34-cp34m-any.whl is not a supported wheel on this platform.", try this command:
 
 ```
-sudo pip3 install tensorflow-1.0.1-cp34-cp34m-linux_armv7l.whl
+pip3 install --user tensorflow-1.0.1-cp34-cp34m-linux_armv7l.whl
 ```
 
 **Note: the provided binaries are for Python 2.7 and 3.4 _only_. If you've installed Python 3.5/3.6 from source on your machine, you'll need to either explicitly install these wheels for 3.4, or you'll need to build TensorFlow [from source](GUIDE.md). Once there's an officially supported installation of Python 3.5+, this repo will start including wheels for those versions.**

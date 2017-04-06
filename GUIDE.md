@@ -59,11 +59,11 @@ For TensorFlow:
 ```
 # For Python 2.7
 sudo apt-get install python-pip python-numpy swig python-dev
-sudo pip install wheel
+pip install --user wheel
 
 # For Python 3.3+
 sudo apt-get install python3-pip python3-numpy swig python3-dev
-sudo pip3 install wheel
+pip3 install --user wheel
 ```
 
 To be able to take advantage of certain optimization flags:
@@ -360,7 +360,7 @@ bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 And then install it!
 
 ```shell
-sudo pip install /tmp/tensorflow_pkg/tensorflow-1.0.1-cp27-none-linux_armv7l.whl
+pip install --user /tmp/tensorflow_pkg/tensorflow-1.0.1-cp27-none-linux_armv7l.whl
 ```
 
 ### 6. Cleaning Up
