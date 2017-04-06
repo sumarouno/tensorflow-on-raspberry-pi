@@ -21,12 +21,11 @@ Here's the basic plan: build a 32-bit version of [Protobuf](https://github.com/g
 ### Contents
 
 1. [Install basic dependencies](#1-install-basic-dependencies)
-2. [Build Protobuf](#2-build-protobuf)
-3. [Install USB Memory as Swap](#3-install-a-memory-drive-as-swap-for-compiling)
-4. [Build Bazel](#4-build-bazel)
-5. [Compiling TensorFlow](#5-compiling-tensorflow)
-6. [Cleaning Up](#6-cleaning-up)
-7. [References](#references)
+2. [Install USB Memory as Swap](#2-install-a-memory-drive-as-swap-for-compiling)
+3. [Build Bazel](#3-build-bazel)
+4. [Compiling TensorFlow](#4-compiling-tensorflow)
+5. [Cleaning Up](#5-cleaning-up)
+6. [References](#references)
 
 ## The Build
 
@@ -81,39 +80,7 @@ mkdir tf
 cd tf
 ```
 
-### 2. Build Protobuf
-
-Clone the Protobuf repository.
-
-```shell
-git clone https://github.com/google/protobuf.git
-```
-
-Now move into the new `protobuf` directory, configure it, and `make` it. _Note: this takes a little while._
-
-```shell
-cd protobuf
-git checkout v3.1.0
-./autogen.sh
-./configure
-make -j 4
-sudo make install
-sudo ldconfig
-```
-
-Great! You should now have `protoc` installed in `/usr/local/bin`, and should be on your `PATH`. Check to make sure it's working correctly:
-
-```shell
-protoc --version
-```
-
-Now that we have the `protoc` compiler, let's install a USB stick as additional swap memory.
-
-```
-cd ..
-```
-
-### 3. Install a Memory Drive as Swap for Compiling
+### 2. Install a Memory Drive as Swap for Compiling
 
 In order to succesfully build TensorFlow, your Raspberry Pi needs a little bit more memory to fall back on. Fortunately, this process is pretty straightforward. Grab a USB storage drive that has at least 1GB of memory. I used a flash drive I could live without that carried no important data. That said, we're only going to be using the drive as swap while we compile, so this process shouldn't do too much damage to a relatively new USB drive.
 
@@ -174,7 +141,7 @@ sudo nano /etc/fstab
 
 Alright! You've got swap! Don't throw out the `/dev/XXX` information yet- you'll need it to remove the device safely later on.
 
-### 4. Build Bazel
+### 3. Build Bazel
 
 To build [Bazel](https://github.com/bazelbuild/bazel), we're going to need to download a zip file containing a distribution archive. Let's do that now and extract it into a new directory called `bazel`:
 
@@ -278,7 +245,7 @@ Move out of the `bazel` directory, and we'll move onto the next step.
 cd ..
 ```
 
-### 5. Compiling TensorFlow
+### 4. Compiling TensorFlow
 
 First things first, clone the TensorFlow repository and move into the newly created directory.
 
@@ -363,7 +330,7 @@ And then install it!
 pip install --user /tmp/tensorflow_pkg/tensorflow-1.0.1-cp27-none-linux_armv7l.whl
 ```
 
-### 6. Cleaning Up
+### 5. Cleaning Up
 
 There's one last bit of house-cleaning we need to do before we're done: remove the USB drive that we've been using as swap.
 
