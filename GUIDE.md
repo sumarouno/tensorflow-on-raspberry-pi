@@ -16,7 +16,7 @@ _[Back to readme](README.md)_
 
 These instructions were crafted for a [Raspberry Pi 3 Model B](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/) running a vanilla copy of Raspbian 8.0 (jessie). It appears to work on Raspberry Pi 2, but [there are some kinks that are being worked out](https://github.com/tensorflow/tensorflow/issues/445#issuecomment-196021885). If these instructions work for different distributions, let me know!
 
-Here's the basic plan: build a 32-bit version of [Protobuf](https://github.com/google/protobuf), use that to build a RPi-friendly version of [Bazel](https://github.com/bazelbuild/bazel), and finally use Bazel to build TensorFlow.
+Here's the basic plan: build a RPi-friendly version of [Bazel](https://github.com/bazelbuild/bazel) and use it to build TensorFlow.
 
 ### Contents
 
@@ -38,12 +38,6 @@ sudo apt-get update
 ```
 
 Next, install some base dependencies and tools we'll need later.
-
-For Protobuf:
-
-```
-sudo apt-get install autoconf automake libtool maven
-```
 
 For Bazel:
 
@@ -146,8 +140,8 @@ Alright! You've got swap! Don't throw out the `/dev/XXX` information yet- you'll
 To build [Bazel](https://github.com/bazelbuild/bazel), we're going to need to download a zip file containing a distribution archive. Let's do that now and extract it into a new directory called `bazel`:
 
 ```shell
-wget https://github.com/bazelbuild/bazel/releases/download/0.4.3/bazel-0.4.3-dist.zip
-unzip -d bazel bazel-0.4.3-dist.zip
+wget https://github.com/bazelbuild/bazel/releases/download/0.4.5/bazel-0.4.5-dist.zip
+unzip -d bazel bazel-0.4.5-dist.zip
 ```
 
 Once it's done downloading and extracting, we can move into the directory to make a few changes:
