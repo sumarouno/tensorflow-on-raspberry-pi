@@ -45,23 +45,23 @@ Next, download the wheel file from this repository and install it:
 ```shell
 # For Python 2.7
 wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases/download/v1.0.1/tensorflow-1.0.1-cp27-none-linux_armv7l.whl
-pip install --user tensorflow-1.0.1-cp27-none-linux_armv7l.whl
+sudo pip install tensorflow-1.0.1-cp27-none-linux_armv7l.whl
 
 # For Python 3.4
 wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases/download/v1.0.1/tensorflow-1.0.1-cp34-cp34m-linux_armv7l.whl
-pip3 install --user tensorflow-1.0.1-cp34-cp34m-linux_armv7l.whl
+sudo pip3 install tensorflow-1.0.1-cp34-cp34m-linux_armv7l.whl
 ```
 
 Finally, we need to reinstall the `mock` library to keep it from throwing an error when we import TensorFlow:
 
 ```shell
 # For Python 2.7
-pip uninstall mock
-pip install --user mock
+sudo pip uninstall mock
+sudo pip install mock
 
 # For Python 3.3+
-pip3 uninstall mock
-pip3 install --user mock
+sudo pip3 uninstall mock
+sudo pip3 install mock
 ```
 
 And that should be it!
@@ -85,7 +85,7 @@ sudo pip2 install tensorflow-1.0.1-cp27-none-linux_armv7l.whl
 Vice-versa for trying to install the Python 3 wheel. If you get the error "tensorflow-1.0.1-cp34-cp34m-any.whl is not a supported wheel on this platform.", try this command:
 
 ```
-pip3 install --user tensorflow-1.0.1-cp34-cp34m-linux_armv7l.whl
+sudo pip3 install tensorflow-1.0.1-cp34-cp34m-linux_armv7l.whl
 ```
 
 **Note: the provided binaries are for Python 2.7 and 3.4 _only_. If you've installed Python 3.5/3.6 from source on your machine, you'll need to either explicitly install these wheels for 3.4, or you'll need to build TensorFlow [from source](GUIDE.md). Once there's an officially supported installation of Python 3.5+, this repo will start including wheels for those versions.**
