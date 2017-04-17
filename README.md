@@ -6,7 +6,9 @@ If you find the binaries and instructions in this repository useful, [please con
 
 ## Intro
 
-_We did it!_ It took a lot of head-banging and several indirect passings-of-the-torch, but we finally got TensorFlow compiled and running properly on the Raspberry Pi! Hopefully this will enable more hardware-based machine learning projects, as well as making the distributed aspects of TensorFlow more accessible.
+If you're looking to run [fully featured TensorFlow](https://github.com/tensorflow/tensorflow) or [Bazel](https://github.com/bazelbuild/bazel) on a Raspberry Pi 3, you're in the right place. This repo contains step-by-step instructions for installing TensorFlow from source using Bazel (which is also compiled from-scratch), as well as pre-built TensorFlow binaries.
+
+_As a quick note, if you're looking for officially supported TensorFlow/Raspberry Pi functionality, you can also check out using the [Makefile contrib module](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/contrib/makefile). It builds a static C++ library instead of the standard Python library, but is very powerful._
 
 ### Contents
 
@@ -108,9 +110,7 @@ There are numerous single-board computers available on the market, but binaries 
 
 ## Credits
 
-_Or: people who did most of the actual work._
-
-While we may have just gotten RPi TensorFlow compiled properly in the last few days (with the most recent grunt work done by myself and @petewarden), this effort has been going on for almost as long as TensorFlow has been open-source, and involves work that spans multiple months in separate codebases. This is an incomprehensive list of people and their work I ran across while working on this.
+While the final pieces of grunt work were done primarily by myself and @petewarden, this effort has been going on for almost as long as TensorFlow has been open-source, and involves work that spans multiple months in separate codebases. This is an incomprehensive list of people and their work I ran across while working on this.
 
 The majority of the source-building guide is a modified version of [these instructions for compiling TensorFlow on a Jetson TK1](http://cudamusing.blogspot.com/2015/11/building-tensorflow-for-jetson-tk1.html). Massimiliano, you are the real MVP. _Note: the TK1 guide was [updated on June 17, 2016](http://cudamusing.blogspot.com/2016/06/tensorflow-08-on-jetson-tk1.html)_
 
@@ -126,8 +126,6 @@ _Issue threads of interest:_
 	* This is where the most recent conversation is located
 
 ## License
-
-The file TENSORFLOW_LICENSE applies to any and all files in the `bin` directory, which are compiled Python wheels for TensorFlow.
 
 Subdirectories contained within the `third_party` directory each contain relevant licenses for the code and software within those subdirectories.
 
