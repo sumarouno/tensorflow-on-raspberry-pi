@@ -42,9 +42,7 @@ Next, install some base dependencies and tools we'll need later.
 For Bazel:
 
 ```shell
-sudo apt-get install pkg-config zip g++ zlib1g-dev unzip openjdk-8-jdk
-# Select the java-8-openjdk option for the update-alternatives command
-sudo update-alternatives --config java
+sudo apt-get install pkg-config zip g++ zlib1g-dev unzip
 ```
 
 For TensorFlow:
@@ -156,7 +154,7 @@ Before building Bazel, we need to set the `javac` maximum heap size for this job
 nano scripts/bootstrap/compile.sh
 ```
 
-Move down to line 137, where you'll see the following block of code:
+Move down to line 117, where you'll see the following block of code:
 
 ```shell
 run "${JAVAC}" -classpath "${classpath}" -sourcepath "${sourcepath}" \
@@ -294,15 +292,19 @@ Now let's configure the build:
 ./configure
 
 Please specify the location of python. [Default is /usr/bin/python]: /usr/bin/python
+Please specify optimization flags to use during compilation when bazel option "--config=opt" is specified [Default is -march=native]: 
+Do you wish to use jemalloc as the malloc implementation? [Y/n] Y
 Do you wish to build TensorFlow with Google Cloud Platform support? [y/N] N
-Do you wish to build TensorFlow with GPU support? [y/N] N
 Do you wish to build TensorFlow with Hadoop File System support? [y/N] N
+Do you wish to build TensorFlow with the XLA just-in-time compiler (experimental)? [y/N] N
 Please input the desired Python library path to use. Default is [/usr/local/lib/python2.7/dist-packages]
 Do you wish to build TensorFlow with OpenCL support? [y/N] N
-Do you wish to build TensorFlow with GPU support? [y/N] 
+Do you wish to build TensorFlow with CUDA support? [y/N] N
 ```
 
 _Note: if you want to build for Python 3, specify `/usr/bin/python3` for Python's location and `/usr/local/lib/python3.4/dist-packages` for the Python library path._
+
+Bazel will now attempt to clean. This takes a really long time (and often ends up erroring out anyway), so you can send some keyboard interrupts (CTRL-C) to skip this and save some time.
 
 Now we can use it to build TensorFlow! **Warning: This takes a really, really long time. Several hours.**
 
@@ -321,7 +323,7 @@ bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 And then install it!
 
 ```shell
-sudo pip install /tmp/tensorflow_pkg/tensorflow-1.0.1-cp27-none-linux_armv7l.whl
+sudo pip install /tmp/tensorflow_pkg/tensorflow-1.1.0-cp27-none-linux_armv7l.whl
 ```
 
 ### 5. Cleaning Up

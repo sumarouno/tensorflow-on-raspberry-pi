@@ -46,12 +46,12 @@ Next, download the wheel file from this repository and install it:
 
 ```shell
 # For Python 2.7
-wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases/download/v1.0.1/tensorflow-1.0.1-cp27-none-linux_armv7l.whl
-sudo pip install tensorflow-1.0.1-cp27-none-linux_armv7l.whl
+wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases/download/v1.1.0/tensorflow-1.1.0-cp27-none-linux_armv7l.whl
+sudo pip install tensorflow-1.1.0-cp27-none-linux_armv7l.whl
 
 # For Python 3.4
-wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases/download/v1.0.1/tensorflow-1.0.1-cp34-cp34m-linux_armv7l.whl
-sudo pip3 install tensorflow-1.0.1-cp34-cp34m-linux_armv7l.whl
+wget https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases/download/v1.1.0/tensorflow-1.1.0-cp34-cp34m-linux_armv7l.whl
+sudo pip3 install tensorflow-1.1.0-cp34-cp34m-linux_armv7l.whl
 ```
 
 Finally, we need to reinstall the `mock` library to keep it from throwing an error when we import TensorFlow:
@@ -76,18 +76,18 @@ Instructions on setting up a Docker image to run on Raspberry Pi are being maint
 
 _This section will attempt to maintain a list of remedies for problems that may occur while installing from `pip`_
 
-#### "tensorflow-1.0.1-cp27-none-linux_armv7l.whl is not a supported wheel on this platform."
+#### "tensorflow-1.1.0-cp27-none-linux_armv7l.whl is not a supported wheel on this platform."
 
 This wheel was built with Python 2.7, and can't be installed with a version of `pip` that uses Python 3. If you get the above message, try running the following command instead:
 
 ```
-sudo pip2 install tensorflow-1.0.1-cp27-none-linux_armv7l.whl
+sudo pip2 install tensorflow-1.1.0-cp27-none-linux_armv7l.whl
 ```
 
-Vice-versa for trying to install the Python 3 wheel. If you get the error "tensorflow-1.0.1-cp34-cp34m-any.whl is not a supported wheel on this platform.", try this command:
+Vice-versa for trying to install the Python 3 wheel. If you get the error "tensorflow-1.1.0-cp34-cp34m-any.whl is not a supported wheel on this platform.", try this command:
 
 ```
-sudo pip3 install tensorflow-1.0.1-cp34-cp34m-linux_armv7l.whl
+sudo pip3 install tensorflow-1.1.0-cp34-cp34m-linux_armv7l.whl
 ```
 
 **Note: the provided binaries are for Python 2.7 and 3.4 _only_. If you've installed Python 3.5/3.6 from source on your machine, you'll need to either explicitly install these wheels for 3.4, or you'll need to build TensorFlow [from source](GUIDE.md). Once there's an officially supported installation of Python 3.5+, this repo will start including wheels for those versions.**
@@ -128,6 +128,8 @@ _Issue threads of interest:_
 ## License
 
 Subdirectories contained within the `third_party` directory each contain relevant licenses for the code and software within those subdirectories.
+
+The file TENSORFLOW_LICENSE applies to the binaries distributed in the [releases.](https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases)
 
 The file LICENSE applies to other files in this repository. I want to stress that a majority of the lines of code found in the guide of this repository was created by others. If any of those original authors want more prominent attribution, please contact me and we can figure out how to make it acceptable.
 
