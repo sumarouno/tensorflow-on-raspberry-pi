@@ -14,7 +14,8 @@ _[Back to readme](README.md)_
 
 ## Overview
 
-These instructions were crafted for a [Raspberry Pi 3 Model B](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/) running a vanilla copy of Raspbian 8.0 (jessie). It appears to work on Raspberry Pi 2, but [there are some kinks that are being worked out](https://github.com/tensorflow/tensorflow/issues/445#issuecomment-196021885). If these instructions work for different distributions, let me know!
+These instructions were crafted for a [Raspberry Pi 3 Model B](https://www.raspberrypi.org/products/raspberry-pi-3-model-b/) running a vanilla copy of Raspbian 8.0 ("Jessie"). It appears to work on Raspberry Pi 2, but [there are some kinks that are being worked out](https://github.com/tensorflow/tensorflow/issues/445#issuecomment-196021885). If these instructions work for different distributions, let me know!
+Updated (2017-09-11) to work with the latest (HEAD) version of tensorflow on Raspbian Strech (Vanilla version september 2017) and Python 3.5.
 
 Here's the basic plan: build a RPi-friendly version of [Bazel](https://github.com/bazelbuild/bazel) and use it to build TensorFlow.
 
@@ -253,39 +254,58 @@ Once in the directory, we have to write a nifty one-liner that is incredibly imp
 ```shell
 grep -Rl 'lib64' | xargs sed -i 's/lib64/lib/g'
 ```
+Updating tensorflow/core/platform/platform.h and WORKSPACE as listed in the previous version is no longer needed with the latest version of tensorflow.
+* the IS_MOBILE_PLATFORM check now includes a specific check for the Raspberry
+* numeric/1.2.6 is no longer listed WORKSPACE
 
-Next, we need to delete a particular line in `tensorflow/core/platform/platform.h`. Open up the file in your favorite text editor:
+Finally, we have to replace the eigen version dependency. The version included in the current tensorflow version may result in an error (near the end of the build):
 
 ```shell
-sudo nano tensorflow/core/platform/platform.h
-```
-
-Now, scroll down toward the bottom and delete the following line containing `#define IS_MOBILE_PLATFORM` (around line 48):
-
-```cpp
-#elif defined(__arm__)
-#define PLATFORM_POSIX
+ERROR: /mnt/tensorflow/tensorflow/core/kernels/BUILD:2128:1: C++ compilation of rule '//tensorflow/core/kernels:svd_op' failed: gcc failed: error executing command 
+...com.google.devtools.build.lib.shell.BadExitStatusException: Process exited with status 1.
 ...
-#define IS_MOBILE_PLATFORM   <----- DELETE THIS LINE
+external/eigen_archive/Eigen/src/Jacobi/Jacobi.h:359:55: error: 'struct Eigen::internal::conj_helper<__vector(4) __builtin_neon_sf, Eigen::internal::Packet2cf, false, false>' has no member named 'pmul'
 ```
 
-This keeps our Raspberry Pi device (which has an ARM CPU) from being recognized as a mobile device.
-
-Finally, we have to adjust the protocol to access the Numeric JS library- for some reason the Cloudflare security certificates don't work properly over `https`. We'll need to fix this in the Bazel `WORKSPACE` file:
+to resolve this 
 
 ```shell
-sudo nano WORKSPACE
+sudo nano tensorflow/workspace.bzl
 ```
 
-Around line 283, change `https` to `http`:
+Replace the following
 
 ```
-http_file(
-  name = "numericjs_numeric_min_js",
-  url = "http://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js",
-)
+  native.new_http_archive(
+      name = "eigen_archive",
+      urls = [
+          "http://mirror.bazel.build/bitbucket.org/eigen/eigen/get/f3a22f35b044.tar.gz",
+          "https://bitbucket.org/eigen/eigen/get/f3a22f35b044.tar.gz",
+      ],
+      sha256 = "ca7beac153d4059c02c8fc59816c82d54ea47fe58365e8aded4082ded0b820c4",
+      strip_prefix = "eigen-eigen-f3a22f35b044",
+      build_file = str(Label("//third_party:eigen.BUILD")),
+  )
 ```
 
+with
+
+```
+  native.new_http_archive(
+      name = "eigen_archive",
+      urls = [
+          "http://mirror.bazel.build/bitbucket.org/eigen/eigen/get/d781c1de9834.tar.gz",
+          "https://bitbucket.org/eigen/eigen/get/d781c1de9834.tar.gz",
+      ],
+      sha256 = "a34b208da6ec18fa8da963369e166e4a368612c14d956dd2f9d7072904675d9b",
+      strip_prefix = "eigen-eigen-d781c1de9834",
+      build_file = str(Label("//third_party:eigen.BUILD")),
+  )
+```
+
+Reference: https://stackoverflow.com/questions/44418657/how-to-build-eigen-with-arm-neon-compile-error-for-tensorflow
+
+**These options have changed with exception of jemalloc use No for all**
 Now let's configure the build:
 
 ```shell
@@ -302,7 +322,7 @@ Do you wish to build TensorFlow with OpenCL support? [y/N] N
 Do you wish to build TensorFlow with CUDA support? [y/N] N
 ```
 
-_Note: if you want to build for Python 3, specify `/usr/bin/python3` for Python's location and `/usr/local/lib/python3.4/dist-packages` for the Python library path._
+_Note: if you want to build for Python 3, specify `/usr/bin/python3` for Python's location and `/usr/local/lib/python3.5/dist-packages` for the Python library path._
 
 Bazel will now attempt to clean. This takes a really long time (and often ends up erroring out anyway), so you can send some keyboard interrupts (CTRL-C) to skip this and save some time.
 
