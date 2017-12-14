@@ -14,88 +14,17 @@ To run this benchmark, I use a modified version of the example [classify_image.p
 * A _run_ is the time between the start of a call to `Session.run` and when it returns. We list the best, worst, and average time (averaged over 25 runs)
 * _Build_ is the amount of time spent constructing the Inception model from the protobuf file.
 
-<table>
+| _Run_              | _Model_                                                 | _Best run (sec)_ | _Worst run (sec)_ | _Average run (sec)_ | _Build time(sec)_ |
+|--------------------|---------------------------------------------------------|------------------|-------------------|---------------------|-------------------|
+| **warmup_runs=10** | **Raspberry Pi 3**                                      | **1.8646**       | **2.1782**        | **1.9805**          | **4.8962**        |
+|                    | Intel i7-3740QM (Early 2013 MacBook Pro)                | 0.2146           | 0.2425            | 0.2272              | 1.3104            |
+|                    | Intel i7-5820K (Ubuntu 14.04)                           | 0.1397           | 0.1730            | 0.1567              | 0.7064            |
+|                    | NVIDIA Titan X (Maxwell), Intel i7-5820K (Ubuntu 14.04) | 0.0240           | 0.0290            | 0.0259              | 0.9566            |
+| **warmup_runs=0**  | **Raspberry Pi 3**                                      | **1.8541**       | **6.3338**        | **2.0656**          | **4.9755**        |
+|                    | Intel i7-3740QM (Early 2013 Retina MacBook Pro)         | 0.2174           | 1.3151            | 0.2662              | 1.2761            |
+|                    | Intel i7-5820K (Ubuntu 14.04)                           | 0.1435           | 0.7027            | 0.1750              | 0.7103            |
+|                    | NVIDIA Titan X (Maxwell), Intel i7-5820K (Ubuntu 14.04) | 0.0232           | 1.5800            | 0.0871              | 0.7659            |
 
-	<tr>
-		<th colspan="6"><i>TensorFlow version 0.11.0</i></th>
-	</tr>
-
-	<tr>
-		<td></td>
-		<th><i>Model</i></th>
-		<th><i>Best run (sec)</i></th>
-		<th><i>Worst run (sec)</i></th>
-		<th><i>Average run (sec)</i></th>
-		<th><i>Build time(sec)</i></th>
-	</tr>
-
-	<tr>
-		<th rowspan="4"><b>warmup_runs=10</b></th>
-		<td><b>Raspberry Pi 3</b></td>
-		<td><b>1.8646</b></td>
-		<td><b>2.1782</b></td>
-		<td><b>1.9805</b></td>
-		<td><b>4.8962</b></td>
-	</tr>
-
-	<tr>
-		<td>Intel i7-3740QM (Early 2013 MacBook Pro)</td>
-		<td>0.2146</td>
-		<td>0.2425</td>
-		<td>0.2272</td>
-		<td>1.3104</td>
-	</tr>
-
-	<tr>
-		<td>Intel i7-5820K (Ubuntu 14.04)</td>
-		<td>0.1397</td>
-		<td>0.1730</td>
-		<td>0.1567</td>
-		<td>0.7064</td>
-	</tr>
-
-	<tr>
-		<td>NVIDIA Titan X (Maxwell), Intel i7-5820K (Ubuntu 14.04)</td>
-		<td>0.0240</td>
-		<td>0.0290</td>
-		<td>0.0259</td>
-		<td>0.9566</td>
-	</tr>
-
-	<tr>
-		<th rowspan="4"><b>warmup_runs=0</b></th>
-		<td><b>Raspberry Pi 3</b></td>
-		<td><b>1.8541</b></td>
-		<td><b>6.3338</b></td>
-		<td><b>2.0656</b></td>
-		<td><b>4.9755</b></td>
-	</tr>
-
-	<tr>
-		<td>Intel i7-3740QM (Early 2013 Retina MacBook Pro)</td>
-		<td>0.2174</td>
-		<td>1.3151</td>
-		<td>0.2662</td>
-		<td>1.2761</td>
-	</tr>
-
-	<tr>
-		<td>Intel i7-5820K (Ubuntu 14.04)</td>
-		<td>0.1435</td>
-		<td>0.7027</td>
-		<td>0.1750</td>
-		<td>0.7103</td>
-	</tr>
-
-	<tr>
-		<td>NVIDIA Titan X (Maxwell), Intel i7-5820K (Ubuntu 14.04)</td>
-		<td>0.0232</td>
-		<td>1.5800</td>
-		<td>0.0871</td>
-		<td>0.7659</td>
-	</tr>
-
-</table>
 
 ### Remarks
 
