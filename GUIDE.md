@@ -186,6 +186,8 @@ return "arm"
 ...
 ```
 
+In newer Bazel versions, the `_get_cpu_value` function will be found in the file `tools/cpp/lib_cc_configure.bzl`, and the same modification is required.
+
 Now we can build Bazel! _Note: this also takes some time._
 
 ```shell
